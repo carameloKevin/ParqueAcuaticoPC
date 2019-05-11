@@ -1,43 +1,36 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package tpfinalpc;
+package parqueacuatico;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
  * @author Carolina
  */
-public class TPFinalPCNewVersion {
-    //////
-//CREAR ARREGLO DE THREADS Y MANDARLE TODO LOS OBJETOS QUE SON HILOS
-    /////
+public class main {
+	/*
+	CREAR ARREGLO DE THREADS Y MANDARLE TODO LOS OBJETOS QUE SON HILOS
+	*/
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String[] args) {
         //verificar si la cantidad de visitantes que quieren ir en cole es <=25
         //si la cant es mayor, suben de a 25 hasta que quede el ultimo monto
         //el ultimomonto es <=25
 
-        //el parque tiene el shop y las actividades
+        //Inicializo los datos 
         Shop shoppingParque = new Shop();//esto creo que no va acá
         Parque elParque = new Parque(shoppingParque);
 
         //LLEGADA AL PARQUE
-        int cantVisitantes = (int) (Math.random() * 70) + 1; //chequear que de bien--> random entre 1-70 (0 no puede ser porque da visitantes 0)
-        Thread[] hilos = new Thread[(cantVisitantes + 2)];//+2 porque es uno por cada chofer
-        System.out.println("LARGO DEL ARREGLO DE HILOS ES "+hilos.length);
+	//Inicializo los visitantes, son entre 10 y 80
+        int cantVisitantes = (int) (Math.random() * 70) + 10; 
+	//Cargo los visitantes en threads mas dos hilos mas para los colectivos
+        Thread[] hilos = new Thread[(cantVisitantes + 2)];
+        System.out.println("MAIN - Cantidad de visitantes "+hilos.length);
         Visitante[] losVisitantes = new Visitante[cantVisitantes];
 
-        //NOTA SOBRE RANDOM ---> +1 if you want 1-100, otherwise will be 0-99.
-        for (int i = 0; i < losVisitantes.length; i++) {System.out.println("visitante "+(i+1));
-            losVisitantes[i] = new Visitante(("visitante " + (i+1)), elParque, (int) (Math.random() * 2), (int) (Math.random() * 2)); //directamente puedo poner "visitantes" +i en la parte del constructor que se refiere al nombre
+        for (int i = 0; i < losVisitantes.length; i++) {
+		System.out.println("DEBUG -- MAIN - Cargando visitante nro: "+(i+1));
+		losVisitantes[i] = new Visitante(("visitante " + (i+1)), elParque, (int) (Math.random() * 2), (int) (Math.random() * 2)); //directamente puedo poner "visitantes" +i en la parte del constructor que se refiere al nombre
         }//(int) Math.random()*2+1 da de 1-2
 
         //variable que sea multiplo de la cantidad de visitantes que van en cole
