@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package tpfinalpc;
 
 /**
@@ -14,34 +9,23 @@ public class Visitante implements Runnable {
     private String nombre;
     private boolean colectivo = false;
     private boolean shop = false;//si es false, va directo a las actividades que ingresa por teclado
-    // private Shop elShop; -----> no, el parque tiene el shop
     private Parque elParque;
     private Colectivo elCole;
     private int actividadDeseada;
-//¿¿¿PODRIA USAR SOLO UN CONSTRUCTOR??? CREO QUE SI..HMM RE PENSAR
-
-    public Visitante(String nom, Parque ecopcs, int bus, int compra) { //cole indica si va en cole true o false //shop indica si va al shop true o false(en ese caso va a las act)
+    
+    public Visitante(String nom, Parque ecopcs, boolean vaEnBus, boolean vaDeCompra) { //cole indica si va en cole true o false //shop indica si va al shop true o false(en ese caso va a las act)
         this.nombre = nom;
         this.elParque = ecopcs;
-        if (bus == 1) {//1=true, 0=false;
-            this.colectivo = true; //no pongo el else porque colectivo=false por default
-        }
-//        else{
-//            this.colectivo=false;
-//        }
-        if (compra == 1) {
-            this.shop = true;
-        }
+        //Modificado Bus para que llegue un boolean directamente
+        this.colectivo = vaEnBus;
+        //Idem Bus pero para Shop
+        this.shop = vaDeCompra;
 
-        if (this.shop == false) {
+        if (this.shop) {
             this.actividadDeseada = (int) (Math.random() * 4 + 1);
         }
     }
-
-//    public Visitante(String nom, Parque ecopcs) {
-//        this.nombre = nom;
-//        this.elParque = ecopcs;
-//    }
+    
     public void setCole(Colectivo c) {
         this.elCole = c;
     }
