@@ -29,15 +29,17 @@ public class main {
         Visitante[] losVisitantes = new Visitante[cantVisitantes];
 
         for (int i = 0; i < losVisitantes.length; i++) {
-		System.out.println("DEBUG -- MAIN - Cargando visitante nro: "+(i+1));
-		losVisitantes[i] = new Visitante(("visitante " + (i+1)), elParque, (int) (Math.random() * 2), (int) (Math.random() * 2)); //directamente puedo poner "visitantes" +i en la parte del constructor que se refiere al nombre
-        }//(int) Math.random()*2+1 da de 1-2
-
+            System.out.println("DEBUG -- MAIN - Cargando visitante nro: "+(i));
+            //Cargo los visitatnes con sus variables
+            // 1/3 de los visitantes van en cole y 1/4 van al Shop apenas llegan
+            losVisitantes[i] = new Visitante(("Visitante Nro. " + (i)), elParque, (i%3 == 0), (i%4 == 0));
+        }
+        
         //variable que sea multiplo de la cantidad de visitantes que van en cole
         //sino se queda esperando como en el transbordador
-        // Visitante [] visitantesEnCole;
+        //Visitante [] visitantesEnCole;
         //separo visitantes que van en cole de los que no
-        ArrayList <Visitante> visitantesCole = new ArrayList<>(); //¿?¿?¿?
+        ArrayList <Visitante> visitantesCole = new ArrayList<>(); //
         ArrayList <Visitante> visitantesNoCole = new ArrayList<>();
         int posVisitCole=0;
         int posVisitNoCole=0;

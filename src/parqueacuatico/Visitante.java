@@ -1,4 +1,4 @@
-package tpfinalpc;
+package parqueacuatico;
 
 /**
  *
@@ -13,7 +13,7 @@ public class Visitante implements Runnable {
     private Colectivo elCole;
     private int actividadDeseada;
     
-    public Visitante(String nom, Parque ecopcs, boolean vaEnBus, boolean vaDeCompra) { //cole indica si va en cole true o false //shop indica si va al shop true o false(en ese caso va a las act)
+    public Visitante(String nom, Parque ecopcs, boolean vaEnBus, boolean vaDeCompra){ //cole indica si va en cole true o false //shop indica si va al shop true o false(en ese caso va a las act)
         this.nombre = nom;
         this.elParque = ecopcs;
         //Modificado Bus para que llegue un boolean directamente
