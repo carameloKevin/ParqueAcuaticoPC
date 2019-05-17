@@ -64,6 +64,10 @@ public class Visitante implements Runnable {
 
     }
 
+    public String getNombre() {
+        return nombre;
+    }
+
     //CREO QUE ESTO NO ES RESPONSABILIDAD DEL VISITANTE
     public void actividadSeleccionada(int act) {
         Object acti = null;
