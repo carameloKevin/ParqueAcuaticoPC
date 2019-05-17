@@ -17,8 +17,8 @@ public class main {
         //el ultimomonto es <=25
 
         //Inicializo los datos 
-        Shop shoppingParque = new Shop();//esto creo que no va acá
-        Parque elParque = new Parque(shoppingParque);
+        //El parque se crea solo, el shop va dentro de parque
+        Parque elParque = new Parque();
 
         //LLEGADA AL PARQUE
 	//Inicializo los visitantes, son entre 10 y 80

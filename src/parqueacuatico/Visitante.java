@@ -12,6 +12,7 @@ public class Visitante implements Runnable {
     private Parque elParque;
     private Colectivo elCole;
     private int actividadDeseada;
+    private FaroMirador faro;
     
     public Visitante(String nom, Parque ecopcs, boolean vaEnBus, boolean vaDeCompra){ //cole indica si va en cole true o false //shop indica si va al shop true o false(en ese caso va a las act)
         this.nombre = nom;
@@ -24,6 +25,11 @@ public class Visitante implements Runnable {
         if (this.shop) {
             this.actividadDeseada = (int) (Math.random() * 4 + 1);
         }
+    }
+    
+    public Visitante(String nombre, FaroMirador faro){
+        this.nombre = nombre;
+        this.faro = faro;
     }
     
     public void setCole(Colectivo c) {

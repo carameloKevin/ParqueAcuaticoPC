@@ -11,16 +11,12 @@ package parqueacuatico;
  */
 public class Parque {
 
-    private Shop elShop;
+    private Shop elShop = new Shop();
     private Restaurante elRestaurante = new Restaurante();
     private MainSnorkel actSnorkel;
     private FaroMirador elFaroTobogan = new FaroMirador();
     private CarreraGomones laCarreraGomones = new CarreraGomones();
     private boolean irAShop;
-
-    public Parque(Shop elShopping) {
-        this.elShop = elShopping;
-    }
 
     public void elijeShop(boolean ir) {
         this.irAShop = ir;
