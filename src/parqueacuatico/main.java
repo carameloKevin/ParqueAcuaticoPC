@@ -105,7 +105,7 @@ public class main {
             if(largoDeVisitantesCole-25>=0){
                 arrVisitEnCole[i].setCole(elColeQueVaLleno);
             }else{
-                arrVisitEnCole[i].setCole(elColeConAsientosLibres);
+ //               arrVisitEnCole[i].setCole(elColeConAsientosLibres);
             }
             
         }

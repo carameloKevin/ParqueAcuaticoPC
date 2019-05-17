@@ -43,7 +43,7 @@ public class Visitante implements Runnable {
     //el visitante sabe el cole que tiene que tomar para ir al parque
     //el visitante sabe a que parque ir
     //no debo verificar que el cole vaya al parque
-
+/*
     public void run() {
         if (this.colectivo) {
             try {
@@ -69,7 +69,18 @@ public class Visitante implements Runnable {
         }
 
     }
-
+*/
+        //RUN DE DEBUG, AL HACER MERGE ESTE METODO SE TIENE QUE IR
+    public void run(){
+        while(true){
+            System.out.println(this.nombre + " VISITANTE "+nombre+" - Me voy al faro");
+            faro.subirEscalera(this);
+            System.out.println(this.nombre + " VISITANTE "+nombre+" - Ya me subi a la escalera");
+            faro.intentoTirarTobogan(this);
+           System.out.println(this.nombre + " VISITANTE "+nombre+"  - Ya me tire y termine");
+        }
+    }
+    
     public String getNombre() {
         return nombre;
     }
