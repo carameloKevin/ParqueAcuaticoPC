@@ -73,11 +73,7 @@ public class Visitante implements Runnable {
         //RUN DE DEBUG, AL HACER MERGE ESTE METODO SE TIENE QUE IR
     public void run(){
         while(true){
-            System.out.println(this.nombre + " VISITANTE "+nombre+" - Me voy al faro");
-            faro.subirEscalera(this);
-            System.out.println(this.nombre + " VISITANTE "+nombre+" - Ya me subi a la escalera");
-            faro.intentoTirarTobogan(this);
-           System.out.println(this.nombre + " VISITANTE "+nombre+"  - Ya me tire y termine");
+ 
         }
     }
     
@@ -118,7 +114,11 @@ public class Visitante implements Runnable {
     }
 
     public void actividadFaro() {
-
+        System.out.println(this.nombre + " VISITANTE - Me voy al faro");
+        faro.subirEscalera(this);
+        System.out.println(this.nombre + " VISITANTE - Ya me subi a la escalera");
+        faro.intentoTirarTobogan(this);
+        System.out.println(this.nombre + " VISITANTE - Ya me tire y termine");
     }
 
     public void actividadGomones() {
