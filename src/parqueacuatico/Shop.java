@@ -6,6 +6,7 @@
 package parqueacuatico;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,7 +31,9 @@ public class Shop {
     */
     
     private final ConcurrentLinkedQueue colaCompras = new ConcurrentLinkedQueue();
-    private ReentrantLock cajas = new ReentrantLock();
+    /*No se si puedo hacerlo con lock por el tema que tengo 2 cajas
+    private ReentrantLock cajas = new ReentrantLock();*/
+    private Semaphore cajas = new Semaphore(2);
     
     public void entrarAComprar(Visitante unVisit)
     {
@@ -51,24 +54,35 @@ public class Shop {
     }
     
     public void pagarCompra(Visitante unVisit){
-        if(!(colaCompras.peek().equals(unVisit)))
+        //Sincronizo la primer parte del bloque para poder hacer los notifiy y waits y tambien para que pueda ver la colaCompras sin que se este modificando justo cuando la ve
+        synchronized(this)
         {
-            try {
-                System.out.println(unVisit.getNombre() + " SHOP - No es mi turno de pagar");
-                notify();
-                wait();
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Shop.class.getName()).log(Level.SEVERE, null, ex);
+            if(!(colaCompras.peek().equals(unVisit)))
+            {
+                try {
+                    System.out.println(unVisit.getNombre() + " SHOP - No es mi turno de pagar");
+                    //Notifico a otro hilo que este esperando y me duermo
+                        this.notify();
+                        this.wait();
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Shop.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                System.out.println(unVisit.getNombre() + " SHOP - Intento pagar de nuevo");
             }
-            System.out.println(unVisit.getNombre() + " SHOP - Intento pagar de nuevo");
         }
-        
         System.out.println(unVisit.getNombre() + "SHOP - Hay una caja libre?");
         
-        
+        try {
+            //Tomo una de las dos cajas
+            cajas.acquire();
+            System.out.println(unVisit.getNombre() + " SHOP - Hay una caja libre!");
+            System.out.println("DEBUG SHOP " + colaCompras.poll());
+            Thread.sleep(100);
+            System.out.println(unVisit.getNombre() + " SHOP - Ya termino de pagar!");
+        } catch (InterruptedException ex) {
+        }finally{
+            cajas.release();
+        }
+        System.out.println(unVisit.getNombre() + " SHOP - Ya libero la caja y se fue");
     }
-    
-    //Entra a comprar
-    //Se mete en la fila y espera que sea su turno
-    //Como sabe que es su turno? hace un wait hasta que le toque? No puedo despertar a 
 }
