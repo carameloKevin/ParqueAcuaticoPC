@@ -44,7 +44,6 @@ public class Shop {
         } catch (InterruptedException ex) {
             Logger.getLogger(Shop.class.getName()).log(Level.SEVERE, null, ex);
         }
-        this.hacerFila(unVisit);
     }
     
     public void hacerFila(Visitante unVisit){

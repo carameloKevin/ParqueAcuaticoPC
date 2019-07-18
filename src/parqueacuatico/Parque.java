@@ -25,9 +25,7 @@ public class Parque {
     public void mostrarActividades() {
         System.out.println("La actividad 1 es para ir a hacer snorkel a la laguna");
         System.out.println("La actividad 2 es para ir al restaurante");
-
         System.out.println("La actividad 3 es para ir al faro mirador");
-
         System.out.println("La actividad 4 es para hacer la carrera de gomones \n");
 
     }
@@ -55,6 +53,10 @@ public class Parque {
 //        return acti;
 //    }
 //
+    public Shop getShop(){
+        return this.elShop;
+    }
+    
     public Object getActSnorkel() {
         return this.actSnorkel;
     }

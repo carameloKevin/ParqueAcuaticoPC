@@ -8,7 +8,8 @@ public class Visitante implements Runnable {
 
     private String nombre;
     private boolean colectivo = false;
-    private boolean shop = false;//si es false, va directo a las actividades que ingresa por teclado
+    private boolean vaShoping = false;//si es false, va directo a las actividades que ingresa por teclado
+    private Shop unShop;
     private Parque elParque;
     private Colectivo elCole;
     private int actividadDeseada;
@@ -17,12 +18,13 @@ public class Visitante implements Runnable {
     public Visitante(String nom, Parque ecopcs, boolean vaEnBus, boolean vaDeCompra){ //cole indica si va en cole true o false //shop indica si va al shop true o false(en ese caso va a las act)
         this.nombre = nom;
         this.elParque = ecopcs;
+        this.unShop = ecopcs.getShop();
         //Modificado Bus para que llegue un boolean directamente
         this.colectivo = vaEnBus;
         //Idem Bus pero para Shop
-        this.shop = vaDeCompra;
+        this.vaShoping = vaDeCompra;
 
-        if (this.shop) {
+        if (this.vaShoping) {
             this.actividadDeseada = (int) (Math.random() * 4 + 1);
         }
     }
@@ -73,7 +75,13 @@ public class Visitante implements Runnable {
         //RUN DE DEBUG, AL HACER MERGE ESTE METODO SE TIENE QUE IR
     public void run(){
         while(true){
- 
+                System.out.println(this.getNombre() + " VISITANTE - Entrando a comprar      <------(1)");
+                unShop.entrarAComprar(this);
+                System.out.println(this.getNombre() + " VISITANTE - Empezando a hacer fila  <------(2)");
+                unShop.hacerFila(this);
+                System.out.println(this.getNombre() + " VISITANTE - Yendo a pagar las compras        <------(3)");
+                unShop.pagarCompra(this);
+                System.out.println(this.getNombre() + " VISITANTE - Termine con las compras           <------(4)");
         }
     }
     
