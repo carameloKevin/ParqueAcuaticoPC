@@ -75,20 +75,12 @@ public class Visitante implements Runnable {
         //RUN DE DEBUG, AL HACER MERGE ESTE METODO SE TIENE QUE IR
     public void run(){
         while(true){
-                System.out.println(this.getNombre() + " VISITANTE - Entrando a comprar      <------(1)");
-                unShop.entrarAComprar(this);
-                System.out.println(this.getNombre() + " VISITANTE - Empezando a hacer fila  <------(2)");
-                unShop.hacerFila(this);
-                System.out.println(this.getNombre() + " VISITANTE - Yendo a pagar las compras        <------(3)");
-                unShop.pagarCompra(this);
-                System.out.println(this.getNombre() + " VISITANTE - Termine con las compras           <------(4)");
         }
     }
     
     public String getNombre() {
         return nombre;
     }
-
     //CREO QUE ESTO NO ES RESPONSABILIDAD DEL VISITANTE
     public void actividadSeleccionada(int act) {
         Object acti = null;
@@ -113,6 +105,17 @@ public class Visitante implements Runnable {
         //return acti;
     }
 
+    public void irShopping(){
+                //Dejo los comentarios de debug
+                System.out.println(this.getNombre() + " VISITANTE - Entrando a comprar      <------(1)");
+                unShop.entrarAComprar(this);
+                System.out.println(this.getNombre() + " VISITANTE - Empezando a hacer fila  <------(2)");
+                unShop.hacerFila(this);
+                System.out.println(this.getNombre() + " VISITANTE - Yendo a pagar las compras        <------(3)");
+                unShop.pagarCompra(this);
+                System.out.println(this.getNombre() + " VISITANTE - Termine con las compras           <------(4)");
+    }
+    
     public void actividadSnorkel() {
 
     }

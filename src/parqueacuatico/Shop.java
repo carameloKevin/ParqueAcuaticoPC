@@ -69,13 +69,13 @@ public class Shop {
                 System.out.println(unVisit.getNombre() + " SHOP - Intento pagar de nuevo");
             }
         }
-        System.out.println(unVisit.getNombre() + "SHOP - Hay una caja libre?");
+        System.out.println(unVisit.getNombre() + " SHOP - Hay una caja libre?");
         
         try {
             //Tomo una de las dos cajas
             cajas.acquire();
             System.out.println(unVisit.getNombre() + " SHOP - Hay una caja libre!");
-            System.out.println("DEBUG SHOP " + colaCompras.poll());
+            System.out.println("DEBUG SHOP En el frente de la fila esta -->>" + ((Visitante)colaCompras.poll()).getNombre());
             Thread.sleep(100);
             System.out.println(unVisit.getNombre() + " SHOP - Ya termino de pagar!");
         } catch (InterruptedException ex) {
