@@ -34,7 +34,7 @@ public class Visitante implements Runnable {
         this.faro = faro;
     }
     
-    public void setCole(Colectivo c) {
+    public void setCole(ColectivoCaro c) {
         this.elCole = c;
     }
 

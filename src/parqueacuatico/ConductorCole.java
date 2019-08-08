@@ -12,9 +12,9 @@ package parqueacuatico;
 public class ConductorCole implements Runnable {
 
     private String nom;
-    private Colectivo elCole;
+    private ColectivoCaro elCole;
 
-    public ConductorCole(String n, Colectivo c) {
+    public ConductorCole(String n, ColectivoCaro c) {
         this.nom = n;
         this.elCole=c;
     }

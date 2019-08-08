@@ -1,130 +1,118 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package parqueacuatico;
 
+import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
- * @author Carolina
+ * @author caramelokevin
  */
 public class Colectivo {
-
-    private int cantPasajeros; //pasajeros ocupando asientos
-    //es muy parecido a TransbordadorGeneral (package Parcial pryct 2017)
-    private final int capacidad = 25;// no me deja ponerele que sea final static
-    private Semaphore vacio;
-    private Semaphore arriba = new Semaphore(0);
-    private Semaphore mutex1 = new Semaphore(1);
-    private Semaphore lleno = new Semaphore(0);
-    private Semaphore bajar = new Semaphore(0);
-
-    //VER QUE PUEDEN IR MENOS DE 25 PERSONAS EN EL COLECTIVO
-    //NOOO --->//este constructor sirve por si quiero agrandar o achicar la capacidad del colectivo
-    //el colectivo tiene capacidad de hasta 25 personas
-    //entonces cantPasajeros<=25
-    public Colectivo(int nPasajeros) {
-        this.cantPasajeros = nPasajeros;
-        this.vacio = new Semaphore(nPasajeros);
-    }
-
-    //deberia chequear la cantidad de visitantes para saber cuantos asientos se van a ocupar
-    public int getCapacidad() {
-        return this.capacidad;
+    int cantAsientos;
+    LinkedList pasajeros;
+    boolean estaEnParque = false; //Significa que esta en donde llegan los pasajeros
+    boolean puedenSubir = false;
+    boolean puedenBajar = true;
+    boolean estoyEnParque = false;
+    
+    public Colectivo(int asientos){
+        this.cantAsientos = asientos;
+        pasajeros = new LinkedList();
     }
     
-    //ver si la cant de visitantes es multiplo de 25 (usar mod 25=0)
-    //en caso de que no lo sea, dividir en grupos
-    //el ultimo grupo modifica la cant de pasajeros arriba del colectivo
-    //deberia usar un set creo
-    //si modifico con el constructor, estaría creando coles nuevos
-    //la cant de pasajeros arriba deberia ser la max entonces debe ser 25 siempre 
-    //solo el ultimo grupo puede tener menos de 25
-
-    public void subir(String nombre) {
-        try {
-            this.margenIzq(nombre);
-            this.vacio.acquire();
-            this.mutex1.acquire();
-            System.out.println("El visitante " + nombre + " esta subiendo al colectivo");
-            Thread.sleep(800);
-            System.out.println("El visitante " + nombre + " ya esta en el colectivo");
-            this.lleno.release();
-            this.arriba.release();
-            this.mutex1.release();
-
-        } catch (InterruptedException ex) {
-            System.out.println(ex.toString());
+    public synchronized void esperarAborde(){
+        //El chofer espera que la gente se suba
+        //El chofer abre la puerta y espera que suba gente
+        System.out.println("COLECTIVO - Llego el cole al " + estoyEnParque +". Abriendo puertas para dejar subir");
+        puedenSubir = true;
+        /*Le asigno el tiempo despues de que abra la puerta por si le sacan el control
+         a  este thread/chofer */
+        
+        long tiempoActual = System.currentTimeMillis();
+        long tiempoFin = tiempoActual + 5 * 1000; //5 segundos
+        //Espera que se llenen los asientos de gente o su tiempo
+        while(pasajeros.size() < cantAsientos || tiempoActual < tiempoFin ){
+            try {
+                //Si no puede salir todavia, notifica a los demas y se vuelve a esperar
+                notify();
+                wait();
+            } catch (InterruptedException ex) {
+                //Logger.getLogger(Colectivo.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
+        //Cierra la puerta para que no pueda subir nadie mas
+        puedenSubir = false;
     }
-
-    public void ir() {
+    
+    public void conducirColectivo(){
         try {
-            //ir.acquire();
-            this.arriba.acquire(this.cantPasajeros);
-            System.out.println("El colectivo se dirige hacia el parque");
-
-            Thread.sleep(2500);
-            System.out.println("El colectivo ha llegado al parque");
-            this.bajar.release(this.cantPasajeros);
-        } catch (InterruptedException ex) {
-            System.out.println(ex.toString());
-        }
-    }
-
-    private void margenIzq(String id) {
-        try {
-            System.out.println("El auto " + id + " se acerca por el margen izquierdo");
-            Thread.sleep(900);
-            System.out.println("El auto " + id + " llegó a la orilla y se fija si puede subir al transbordador");
-        } catch (InterruptedException ex) {
-            System.out.println(ex.toString());
-        }
-
-    }
-
-    private void margenDer(String id) {
-        try {
-            System.out.println("El auto " + id + " se esta yendo por el margen derecho");
-            Thread.sleep(900);
-            System.out.println("El auto " + id + " se fue tan rapido que ya no se ve");
-        } catch (InterruptedException ex) {
-            System.out.println(ex.toString());
-        }
-
-    }
-
-    public void bajar(String nombre) {
-        try {
-            bajar.acquire();
-            //this.autosArriba.acquire();
-            this.lleno.acquire();//lleno va acá?
-            this.mutex1.acquire();
-            System.out.println("El visitante " + nombre + " esta bajando");
+            //Solamente un thread.sleep() para simular que esta yendo al parque
             Thread.sleep(1000);
-            System.out.println("El visitante " + nombre + " ha bajado");
-
-            this.margenDer(nombre);
-            this.mutex1.release();
-            this.arriba.release();
-
         } catch (InterruptedException ex) {
-            System.out.println(ex.toString());
+            Logger.getLogger(Colectivo.class.getName()).log(Level.SEVERE, null, ex);
         }
+        //esta variable solo sirve para decir donde esta, va a ir en los sout, pero no hace nada especial
+        estoyEnParque = !estoyEnParque;
     }
-
-    public void volver() {
-        try {
-            this.arriba.acquire(this.cantPasajeros);
-            System.out.println("El colectivo esta volviendo a su parada inicial");
-            Thread.sleep(2000);
-            System.out.println("El colectivo ha vuelto a su parada inicial");
-            vacio.release(this.cantPasajeros);//si lo hago antes entonces puede subirse uno cuando en realidad no debería
-        } catch (InterruptedException ex) {
-            System.out.println(ex.toString());
+    
+    public synchronized void esperarDecenso(){
+        //Espera a que se bajen todos, no se va hasta que esto pase
+        //Abre las puertas para que se puedan bajar y notifica a los pasajeros
+        puedenBajar = true;
+        while(pasajeros.size() > 0){
+            try {
+                notify();
+                wait();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Colectivo.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
+        puedenBajar = false;
+    }
+    
+    public synchronized void subirAlColectivo(Visitante unPasajero)
+    {
+        while(!puedenSubir)
+        {
+            try {
+                //Creo que el notifiy no es necesario
+                notify();
+                wait();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Colectivo.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        pasajeros.add(unPasajero);
+        //Intenta notificarle al chofer, pero si no le notifica a otro pasajero que puede subir
+        notify();
+    }
+    
+    public synchronized void bajarseDelColectivo(Visitante unPasajero)
+    {
+        while(!puedenBajar)
+        {
+            try {
+                notify();
+                wait();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Colectivo.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        //Saco a este pasajero por un tema de semantica, pero la verdad que podria
+        //sacar a cualquiera. Como por ej. al primero (supongo que seria mas optimo)
+        pasajeros.remove(unPasajero);
+        //Notifica que se pueden seguir bajando
+        notify();
     }
 }
+
+/* LISTA DE PASOS
+    - El chofer espera que se suban, por un tiempo o si se llena
+    - La gente se va a subiendo mientras el chofer este esperando
+    - El chofer maneja, la gente se queda sentada sin hacer nada
+    - El chofer llega, la gente se baja. El chofer espera hasta que no quede nadie
+    - El chofer espera un tiempo o a que se llene antes de irse.
+    - Vuelve al punto de inicio con gente. Se vacia y despues vuelve a repetir el ciclo
+*/
