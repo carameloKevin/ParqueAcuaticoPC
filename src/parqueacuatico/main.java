@@ -79,12 +79,12 @@ public class main {
         //Salen cuando se llenan o despues de un tiempo a su destino
         
         int cantAsientosColectivo = 25;
-        Colectivo[] colectivos   = new Colectivo[cantColectivos];
+        ColectivoCaro[] colectivos   = new ColectivoCaro[cantColectivos];
         ConductorCole[] choferes = new ConductorCole[cantColectivos];
         
         //le asigno los colectivos a los choferes
         for (int i = cantColectivos; i >= 0; i++) {
-            colectivos[i] = new Colectivo(cantAsientosColectivo);
+            colectivos[i] = new ColectivoCaro(cantAsientosColectivo);
             choferes[i] = new ConductorCole("Chofer " + i, colectivos[i]);
             hilos[cantVisitantes + i] = new Thread(choferes[i]);
         }
@@ -97,7 +97,7 @@ public class main {
             int cantCole25 = visitantesCole.size() / 25;
 
             int cantPasajerosMenor25 = visitantesCole.size() % 25;
-            Colectivo elColeConAsientosLibres = new Colectivo(cantPasajerosMenor25);
+            ColectivoCaro elColeConAsientosLibres = new ColectivoCaro(cantPasajerosMenor25);
             ConductorCole choferPatricio = new ConductorCole("Chofer Patricio", elColeConAsientosLibres);
             hilos[cantVisitantes + 1] = new Thread(choferPatricio);
         }

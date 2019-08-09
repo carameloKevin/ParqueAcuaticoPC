@@ -7,20 +7,19 @@ package parqueacuatico;
 public class Visitante implements Runnable {
 
     private String nombre;
-    private boolean colectivo = false;
+    private boolean vaEnColectivo = false;
     private boolean vaShoping = false;//si es false, va directo a las actividades que ingresa por teclado
     private Shop unShop;
     private Parque elParque;
-    private Colectivo elCole;
+    private Colectivo elColectivo;
     private int actividadDeseada;
-    private FaroMirador faro;
     
     public Visitante(String nom, Parque ecopcs, boolean vaEnBus, boolean vaDeCompra){ //cole indica si va en cole true o false //shop indica si va al shop true o false(en ese caso va a las act)
         this.nombre = nom;
         this.elParque = ecopcs;
         this.unShop = ecopcs.getShop();
         //Modificado Bus para que llegue un boolean directamente
-        this.colectivo = vaEnBus;
+        this.vaEnColectivo = vaEnBus;
         //Idem Bus pero para Shop
         this.vaShoping = vaDeCompra;
 
@@ -29,17 +28,20 @@ public class Visitante implements Runnable {
         }
     }
     
-    public Visitante(String nombre, FaroMirador faro){
+    //Constructor debug
+    public Visitante(String nombre, Colectivo unColectivo)
+    {
         this.nombre = nombre;
-        this.faro = faro;
+        this.elColectivo = unColectivo;
+        this.vaEnColectivo = true;
     }
     
-    public void setCole(ColectivoCaro c) {
-        this.elCole = c;
+    public void setCole(Colectivo unColectivo) {
+        this.elColectivo = unColectivo;
     }
 
     public boolean getVaEnCole() {
-        return this.colectivo;
+        return this.vaEnColectivo;
     }
     //el parque tiene el cole, el cole tiene el parque o los tomo como independientes???
     //el visitante sabe el cole que tiene que tomar para ir al parque
@@ -74,7 +76,16 @@ public class Visitante implements Runnable {
 */
         //RUN DE DEBUG, AL HACER MERGE ESTE METODO SE TIENE QUE IR
     public void run(){
-        while(true){
+        int i = 2;
+        while(i > 0){
+            //Este if podria no ir porque esta el del while. Solo uno de los dos es necesario
+            if(vaEnColectivo && this.vaEnColectivo)
+            {
+//                System.out.println("VISITANTE -- " + this.nombre + " Estoy queriendome SUBIR al colectivo");
+                elColectivo.subirAlColectivo(this);
+//                System.out.println("VISITANTE -- " + this.nombre + " Estoy queriendome BAJAR del colectivo");
+                elColectivo.bajarseDelColectivo(this);
+            }
         }
     }
     
@@ -107,13 +118,13 @@ public class Visitante implements Runnable {
 
     public void irShopping(){
                 //Dejo los comentarios de debug
-                System.out.println(this.getNombre() + " VISITANTE - Entrando a comprar      <------(1)");
+//                System.out.println(this.getNombre() + " VISITANTE - Entrando a comprar      <------(1)");
                 unShop.entrarAComprar(this);
-                System.out.println(this.getNombre() + " VISITANTE - Empezando a hacer fila  <------(2)");
+//                System.out.println(this.getNombre() + " VISITANTE - Empezando a hacer fila  <------(2)");
                 unShop.hacerFila(this);
-                System.out.println(this.getNombre() + " VISITANTE - Yendo a pagar las compras        <------(3)");
+//                System.out.println(this.getNombre() + " VISITANTE - Yendo a pagar las compras        <------(3)");
                 unShop.pagarCompra(this);
-                System.out.println(this.getNombre() + " VISITANTE - Termine con las compras           <------(4)");
+//                System.out.println(this.getNombre() + " VISITANTE - Termine con las compras           <------(4)");
     }
     
     public void actividadSnorkel() {
@@ -124,6 +135,11 @@ public class Visitante implements Runnable {
 
     }
 
+    /*
+    
+    //Estaba para debugear con un faro local. Tendria que hacer que tome el faro del
+    //parque acuatico
+    
     public void actividadFaro() {
         System.out.println(this.nombre + " VISITANTE - Me voy al faro");
         faro.subirEscalera(this);
@@ -131,7 +147,7 @@ public class Visitante implements Runnable {
         faro.intentoTirarTobogan(this);
         System.out.println(this.nombre + " VISITANTE - Ya me tire y termine");
     }
-
+    */
     public void actividadGomones() {
 
     }
