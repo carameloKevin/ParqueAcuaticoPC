@@ -30,7 +30,7 @@ public class Shop {
     - Tengo que hacerlo con Lock, porque si no es lo exactamente igual que el faroMirador
     */
     
-    private final ConcurrentLinkedQueue colaCompras = new ConcurrentLinkedQueue();
+    private final ConcurrentLinkedQueue<Visitante> colaCompras = new ConcurrentLinkedQueue();
     /*No se si puedo hacerlo con lock por el tema que tengo 2 cajas
     private ReentrantLock cajas = new ReentrantLock();*/
     private Semaphore cajas = new Semaphore(2);
@@ -38,18 +38,18 @@ public class Shop {
     public void entrarAComprar(Visitante unVisit)
     {
         try {
-            System.out.println(unVisit.getNombre() + " SHOP - Entro a la tienda y esta mirando");
+            System.out.println(unVisit.getNombreCompleto() + " SHOP - Entro a la tienda y esta mirando");
             Thread.sleep(200);
-            System.out.println(unVisit.getNombre() + " SHOP - Ya termino de comprar. Yendo a hacer fila para pagar");
+            System.out.println(unVisit.getNombreCompleto() + " SHOP - Ya termino de comprar. Yendo a hacer fila para pagar");
         } catch (InterruptedException ex) {
             Logger.getLogger(Shop.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
     public void hacerFila(Visitante unVisit){
-        System.out.println(unVisit.getNombre() + " SHOP - Se esta metiendo en la fila");
+        System.out.println(unVisit.getNombreCompleto() + " SHOP - Se esta metiendo en la fila");
         colaCompras.add(unVisit);
-        System.out.println(unVisit.getNombre() + " SHOP - Se metio en la fila");
+        System.out.println(unVisit.getNombreCompleto() + " SHOP - Se metio en la fila");
     }
     
     public void pagarCompra(Visitante unVisit){
@@ -59,29 +59,37 @@ public class Shop {
             if(!(colaCompras.peek().equals(unVisit)))
             {
                 try {
-                    System.out.println(unVisit.getNombre() + " SHOP - No es mi turno de pagar");
+                    System.out.println(unVisit.getNombreCompleto() + " SHOP - No es mi turno de pagar");
                     //Notifico a otro hilo que este esperando y me duermo
                         this.notify();
                         this.wait();
                 } catch (InterruptedException ex) {
                     Logger.getLogger(Shop.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                System.out.println(unVisit.getNombre() + " SHOP - Intento pagar de nuevo");
+                System.out.println(unVisit.getNombreCompleto() + " SHOP - Intento pagar de nuevo");
             }
         }
-        System.out.println(unVisit.getNombre() + " SHOP - Hay una caja libre?");
+        System.out.println(unVisit.getNombreCompleto() + " SHOP - Hay una caja libre?");
         
         try {
             //Tomo una de las dos cajas
             cajas.acquire();
-            System.out.println(unVisit.getNombre() + " SHOP - Hay una caja libre!");
-            System.out.println("DEBUG SHOP En el frente de la fila esta -->>" + ((Visitante)colaCompras.poll()).getNombre());
+            System.out.println(unVisit.getNombreCompleto() + " SHOP - Hay una caja libre!");
+            System.out.println("DEBUG SHOP En el frente de la fila esta -->>" + ((Visitante)colaCompras.poll()).getNombreCompleto());
             Thread.sleep(100);
-            System.out.println(unVisit.getNombre() + " SHOP - Ya termino de pagar!");
+            System.out.println(unVisit.getNombreCompleto() + " SHOP - Ya termino de pagar!");
         } catch (InterruptedException ex) {
         }finally{
             cajas.release();
         }
-        System.out.println(unVisit.getNombre() + " SHOP - Ya libero la caja y se fue");
+        System.out.println(unVisit.getNombreCompleto() + " SHOP - Ya libero la caja y se fue");
     }
+
+	public void realizarShop(Visitante unVisitante) {
+
+		entrarAComprar(unVisitante);
+		hacerFila(unVisitante);
+		pagarCompra(unVisitante);
+		
+	}
 }

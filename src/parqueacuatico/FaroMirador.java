@@ -32,24 +32,33 @@ import java.util.logging.Logger;
         this.mutex = new Semaphore(1);
     }
     
+    public void realizarFaroMirador(Visitante unVisitante){
+		System.out.println(unVisitante.getNombreCompleto() + " - Va al faro");
+		subirEscalera(unVisitante);
+		System.out.println(unVisitante.getNombreCompleto() + " - Ya se subio a la escalera");
+		intentoTirarTobogan(unVisitante);
+		System.out.println(unVisitante.getNombreCompleto() + " - Ya se tiro y termino");
+
+		System.out.println(unVisitante.getNombreCompleto() + " - Termino Faro Mirador");
+    }
+    
     public void subirEscalera(Visitante unVisit)
     {
-        //Implementado con Semaforo
         //Se sube un visitante a la escalera del faro
-        System.out.println(unVisit.getNombre() + " FARO - Visitate Nro " + unVisit.getNombre() +" INTENTA subir al faro");
+        System.out.println(unVisit.getNombreCompleto() + " FARO - Visitate Nro " + unVisit.getNombreCompleto() +" INTENTA subir al faro");
         try {
             subirEscalera.acquire();
         } catch (InterruptedException ex) {
             Logger.getLogger(FaroMirador.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        System.out.println(unVisit.getNombre() + " DEBUG - FARO - Visitate Nro " + unVisit.getNombre() +" TOMO el semaforo exitosamente");
+        System.out.println(unVisit.getNombreCompleto() + " DEBUG - FARO - Visitate Nro " + unVisit.getNombreCompleto() +" TOMO el semaforo exitosamente");
         
         try{
             //Se sube a la escalera
             escalera.add(unVisit);
         }finally{
-            System.out.println(unVisit.getNombre() + " DEBUG - FARO - Visitante Nro " + unVisit.getNombre() + "  LOGRO subir y SOLTO el Lock exitosamente");
+            System.out.println(unVisit.getNombreCompleto() + " DEBUG - FARO - Visitante Nro " + unVisit.getNombreCompleto() + "  LOGRO subir y SOLTO el Lock exitosamente");
             subirEscalera.release();
         }
     }
@@ -62,12 +71,12 @@ import java.util.logging.Logger;
         
         //Verifico que el visitante que se quiere tirar sea el primero en la fila
         //Verifico en un metodo afuera para evitar hacer el synchronized con el Thread.sleep() de tirarseTobogan
-        System.out.println(unVisit.getNombre() + " FARO - Soy el primero para tirarme?");
+        System.out.println(unVisit.getNombreCompleto() + " FARO - Soy el primero para tirarme?");
         verificarTobogan(unVisit);
         
         //Se tira por el tobogan
         //!!NOTA - Yo puse un el metodo Thread.Sleep() aca dentro. Cuando va a este metodo, sigue el syncronized? mas que nada por el tema que no haga un Sleep mientras esta sincronizado
-        System.out.println(unVisit.getNombre() + " FARO - Es mi turno de tirarme!");
+        System.out.println(unVisit.getNombreCompleto() + " FARO - Es mi turno de tirarme!");
         tirarseTobogan(unVisit);
         
         
@@ -93,19 +102,19 @@ import java.util.logging.Logger;
     {
         try {
             //Solo toma un semaforo, simula que se tira y suelta el semaforo
-            System.out.println(unVisit.getNombre() + " FARO - Intento obtener el semaforo del tobogan");
+            System.out.println(unVisit.getNombreCompleto() + " FARO - Intento obtener el semaforo del tobogan");
             toboganes.acquire();
             //Lo quito de la cola de la escalera
             mutex.acquire();
                 escalera.remove(unVisit);
             mutex.release();
-            System.out.println(unVisit.getNombre() + " FARO - Obtuve el semaforo del tobogan, me tiro /duermo 200 mili <---------------------");
+            System.out.println(unVisit.getNombreCompleto() + " FARO - Obtuve el semaforo del tobogan, me tiro /duermo 200 mili <---------------------");
             Thread.sleep(200);
         } catch (InterruptedException ex) {
             Logger.getLogger(FaroMirador.class.getName()).log(Level.SEVERE, null, ex);
         }
         toboganes.release();
-        System.out.println(unVisit.getNombre() + " FARO - Ya me tire y termine, solte el semaforo ----------------->");
+        System.out.println(unVisit.getNombreCompleto() + " FARO - Ya me tire y termine, solte el semaforo ----------------->");
     }
         
     }
