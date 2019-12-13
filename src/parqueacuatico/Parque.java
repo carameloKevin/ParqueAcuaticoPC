@@ -21,12 +21,15 @@ public class Parque {
     private FaroMirador elFaroTobogan = new FaroMirador();
     private CarreraGomones laCarreraGomones = new CarreraGomones();
     private MundoAventura elMundoAventura = new MundoAventura();
-  //  private NadoDelfines nadoDelfines = new NadoDelfines();
+    private NadoDelfines nadoDelfines;
     
     public Parque()
     {
     	reloj = new Reloj();
     	new Thread(reloj).start();
+    	
+    	//Lo inicialice aca porque no sabia bien si iba a funcionar si lo inicializa arriba con los otros
+    	nadoDelfines = new NadoDelfines(reloj);
     }
     
     public void realizarCarreraGomones(Visitante unVisitante) {
@@ -48,6 +51,11 @@ public class Parque {
     	this.elShop.realizarShop(unVisitante);
     }
     
+    public void realizarNadoDelfines(Visitante unVisitante)
+    {
+    	this.nadoDelfines.realizarNadoDelfines(unVisitante);
+    }
+    
     public boolean estaAbierto()
     {
     	int hora = this.reloj.getHoraActual();
@@ -62,7 +70,8 @@ public class Parque {
 	public void realizarActividades(Visitante unVisitante) {
 		while(estaAbierto())
 		{
-			int numActividad = random.nextInt(7);
+			int numActividad = 2; //random.nextInt(7);
+			
 			switch(numActividad)
 			{
 			case 0: //Shop
@@ -70,6 +79,8 @@ public class Parque {
 				break;
 			case 1: //Restaurante
 			case 2: //Nado con delfines
+				realizarNadoDelfines(unVisitante);
+				break;
 			case 3: //Snorkel
 			case 4: 
 				realizarMundoAventura(unVisitante);

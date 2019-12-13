@@ -3,20 +3,23 @@ package parqueacuatico;
 import java.util.concurrent.Semaphore;
 
 public class Pileta implements Runnable{
-	private Semaphore lugares = new Semaphore(10);
+	private int tamanoPileta;
+	private Semaphore lugares;
 	boolean enPlenoShow = false;
 	NadoDelfines eventoDelfines;
 	
-	public Pileta(NadoDelfines eventoDelfines)
+	public Pileta(int tamano, NadoDelfines eventoDelfines)
 	{
 		this.eventoDelfines = eventoDelfines;
+		this.tamanoPileta = tamano;
+		lugares = new Semaphore(tamano);
 	}
 	
 	public boolean reservarLugar()
 	{
-		boolean aux = enPlenoShow;
+		boolean aux = false;
 		
-		if(!aux)
+		if(!enPlenoShow)
 		{
 			aux = lugares.tryAcquire();
 		}
@@ -33,7 +36,9 @@ public class Pileta implements Runnable{
 		while(true)
 		{
 			eventoDelfines.abrirRegistros();
+			eventoDelfines.comenzarShow();
 			eventoDelfines.terminarShow();
 		}
 	}
+	
 }

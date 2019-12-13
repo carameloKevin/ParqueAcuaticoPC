@@ -1,5 +1,6 @@
 package parqueacuatico;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -10,6 +11,7 @@ public class Reloj implements Runnable {
 	private Object horario = new Object();
 	private Lock lock = new ReentrantLock();
 	private Condition dormir = lock.newCondition();
+	private Condition cierreParque = lock.newCondition();
 	public Reloj() {
 		horaActual = 8;
 	}
@@ -18,6 +20,7 @@ public class Reloj implements Runnable {
 		while (true) {
 			try {
 				Thread.sleep(1000);
+				
 				lock.lock();
 				if (horaActual == 23) {
 					horaActual = 0;
@@ -27,6 +30,8 @@ public class Reloj implements Runnable {
 				if(horaActual >= 9 && horaActual <= 17)
 				{
 					dormir.signalAll();
+				}else {
+					cierreParque.signalAll();
 				}
 				
 				
@@ -43,7 +48,7 @@ public class Reloj implements Runnable {
 		return horaActual;
 	}
 	
-	public void esperarUnaHora()
+	public int esperarUnaHora()
 	{
 		try {
 			lock.lock();
@@ -53,6 +58,23 @@ public class Reloj implements Runnable {
 		}finally {
 			lock.unlock();
 		}
+		
+		return horaActual;
+	}
+	
+	public int utilizarTiempoEvento() {
+		/*La diferencia entre este metodo y esperar una hora es que este metodo espera un tiempo, 
+		pero si se pasa de las 18, se despierta y sale*/
+		try {
+			lock.lock();
+			cierreParque.await(1000, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}finally {
+			lock.unlock();
+		}
+		
+		return horaActual;
 	}
 	
 }
