@@ -35,7 +35,7 @@ public class Visitante implements Runnable {
 		while (true) {
 			
 			while (!elParque.estaAbierto()) {
-				System.out.println(this.getNombreCompleto() + " - El parque esta cerrado, vuelvo a intentar en un rato");
+				System.out.println(this.getNombreCompleto() + " - El parque esta cerrado, vuelvo mañana");
 				elParque.getReloj().esperarUnaHora();
 			}
 			
@@ -60,8 +60,6 @@ public class Visitante implements Runnable {
 		return "VISITANTE " + nombre;
 	}
 
-	// CREO QUE ESTO NO ES RESPONSABILIDAD DEL VISITANTE
-
 	public void setTransporte(Transporte unColectivo) {
 		this.elColectivo = unColectivo;
 	}
@@ -69,25 +67,6 @@ public class Visitante implements Runnable {
 	public boolean getVaEnCole() {
 		return this.vaEnColectivo;
 	}
-
-	
-	/*
-	 * public void actividadNadoDelfines() { NadoDelfines nadoDelfines =
-	 * elParque.getNadoDelfines(); Random random = new Random(); int horaQuePuedo =
-	 * random.nextInt(4); //4 es la cantidad de piletas
-	 * 
-	 * System.out.println("Visitante " + this.nombre
-	 * +" - Me anoto para el nado de delfines");
-	 * if(nadoDelfines.anotarVisitante(this, horaQuePuedo)) {
-	 * System.out.println("Visitante " + this.nombre +
-	 * " - Me anote exitosamente al nado de delfines. Ahora me voy a nadar");
-	 * nadoDelfines.realizarNadoConDelfines(this, horaQuePuedo);
-	 * System.out.println("Visitante " + this.nombre + " - Termine de nadar");
-	 * }else{ System.out.println("Visitante " + this.nombre +
-	 * " - No me pude anotar porque no queda lugar/no es el horario"); };
-	 * System.out.println("Visitante " + this.nombre +
-	 * " - Termine Nado Con Delfines"); }
-	 */
 
 	public void dejarEquipamiento(int numLlave) {
 		tieneMochila = false;

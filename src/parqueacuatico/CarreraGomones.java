@@ -76,12 +76,10 @@ class CarreraGomones {
 		int pos = 0;
 		
 		System.out.println(unVisitante.getNombreCompleto() + " - Empezo la actividad de carrera de gomones");
-		System.out.println("-----ESTA DESABILITADO EL TREN-----");
-		if(true)
+		if(random.nextBoolean())
 		{
 			subirEnBici(unVisitante);
 		}else {
-			//subirEnBici(unVisitante);
 			subirEnTrencito(unVisitante);
 		}
 		
@@ -135,7 +133,6 @@ class CarreraGomones {
 		
 		System.out.println("CARRERAGOMONES - LLego a la meta el gomon " + pos);
 		seleccionGomon[pos].release();
-		
 		
 		if(unVisitante.getDejoMochila())
 		{

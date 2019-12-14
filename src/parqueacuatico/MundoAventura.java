@@ -9,27 +9,49 @@ import java.util.concurrent.locks.Lock;
 public class MundoAventura {
 
 	//LinkedBlockingQueue<Visitante> filaCuerdas, filaTirolesa, filaSalto;
-	Semaphore filaCuerdas, filaTirolesa, filaSalto, mutex, tirolesaEste, tirolesaOeste;
+	Semaphore filaCuerdas, filaTirolesa, filaSalto, tirolesaEste, tirolesaOeste;
 	Random random = new Random();
 	int genteEste = 0, genteOeste = 0;
+	Reloj reloj;
 	
-	public MundoAventura()
+	public MundoAventura(Reloj elReloj)
 	{
 		this.filaCuerdas = new Semaphore(1, true);
 		this.filaTirolesa = new Semaphore(2, true);
 		this.filaSalto = new Semaphore(2, true);
-		this.mutex = new Semaphore(1);
 		this.tirolesaEste = new Semaphore(1);
 		this.tirolesaOeste = new Semaphore(0);
+		reloj = elReloj;
 	}
 	
 	public void realizarMundoAventura(Visitante unVisitante) {
+		boolean salioForzado = true;
+		
 		System.out.println(unVisitante.getNombreCompleto() + " - Comenzo Mundo Aventura");
 		
-		this.hacerCuerdas(unVisitante);
-		this.tirarseTirolesa(unVisitante);
-		this.tirarseTobogan(unVisitante);
+		//Siempre verifica la hora que es para no pasarse de las 18
 		
+		
+		if(reloj.getHoraActual() < 17)
+		{
+			this.hacerCuerdas(unVisitante);	
+			
+			if(reloj.getHoraActual() < 18)
+			{
+				this.tirarseTirolesa(unVisitante);
+				
+				if(reloj.getHoraActual() < 18)
+				{
+					this.tirarseTobogan(unVisitante);
+					salioForzado = false;
+				}
+			}
+		}
+		
+		if(salioForzado)
+		{
+			System.out.println(unVisitante.getNombreCompleto() + " - Fue hechado del Mundo Aventura porque estan cerrando el parque");
+		}
 		System.out.println(unVisitante.getNombreCompleto() + " - Termino el mundo aventura");
 	}
 

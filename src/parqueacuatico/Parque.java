@@ -20,7 +20,7 @@ public class Parque {
     private MainSnorkel actSnorkel;
     private FaroMirador elFaroTobogan = new FaroMirador();
     private CarreraGomones laCarreraGomones = new CarreraGomones();
-    private MundoAventura elMundoAventura = new MundoAventura();
+    private MundoAventura elMundoAventura;
     private NadoDelfines nadoDelfines;
     
     public Parque()
@@ -30,6 +30,7 @@ public class Parque {
     	
     	//Lo inicialice aca porque no sabia bien si iba a funcionar si lo inicializa arriba con los otros
     	nadoDelfines = new NadoDelfines(reloj);
+    	elMundoAventura = new MundoAventura(reloj);
     }
     
     public void realizarCarreraGomones(Visitante unVisitante) {
@@ -70,7 +71,7 @@ public class Parque {
 	public void realizarActividades(Visitante unVisitante) {
 		while(estaAbierto())
 		{
-			int numActividad = 2; //random.nextInt(7);
+			int numActividad = random.nextInt(7);
 			
 			switch(numActividad)
 			{
