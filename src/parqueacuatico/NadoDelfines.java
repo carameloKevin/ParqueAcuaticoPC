@@ -59,7 +59,7 @@ public class NadoDelfines {
 	
 	public void realizarNadoDelfines(Visitante unVisitante)
 	{
-		int pos = -1;
+		int pos = 0;
 		boolean reservoLugar = false;
 		
 		lock.lock();
@@ -83,12 +83,14 @@ public class NadoDelfines {
 		System.out.println(unVisitante.getNombreCompleto() + " - Intenta registrarse a una de las piletas");
 		while(!reservoLugar && pos < CANT_PILETAS)
 		{
-			pos++;
+			
 			reservoLugar = piletas[pos].reservarLugar();
+			pos++;
 		}
 		
 		if(reservoLugar)
 		{
+			pos--;
 			lock.lock();
 			cantGenteRegistrada++;
 			System.out.println(unVisitante.getNombreCompleto() + " Se registro bien");
@@ -154,6 +156,16 @@ public class NadoDelfines {
 		System.out.println("PILETA - Esperando que se anoten");
 		
 		//La pileta tiene que empezar que haya el minimo de gente, si no no puede comenzar
+		while(cantGenteRegistrada < MINIMA_GENTE_EMPEZAR && horario != 17)
+		{
+			lock.unlock();
+			horario = reloj.esperarUnaHora();
+			lock.lock();
+		}
+		
+		
+		
+		/*
 		if(cantGenteRegistrada < MINIMA_GENTE_EMPEZAR && horario < 17);
 		{
 			try {
@@ -163,7 +175,8 @@ public class NadoDelfines {
 				e.printStackTrace();
 			}
 		}
-		
+		*/
+		esperandoGenteShow.signalAll();
 		horario = reloj.getHoraActual();
 		//Espera el horario del siguiente show
 		//El horario < 17 es para que si llegan a esa las 17, arranquen el show si o si
@@ -175,17 +188,15 @@ public class NadoDelfines {
 		}
 		
 		comenzoShow = true;
-		
 		esperandoHoraShow.signalAll();
 		
-		System.out.println("PILETA - !!!!!UNA!!!! PILETA EMPEZO <-----------");
+		System.out.println("PILETA - Una de las piletas comenzo");
 		lock.unlock();
 		
 
 		reloj.utilizarTiempoEvento();
 		
 		}
-		
 
 	public void terminarShow() {
 		lock.lock();
