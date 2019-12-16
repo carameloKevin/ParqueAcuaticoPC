@@ -14,18 +14,21 @@ public class Visitante implements Runnable {
 	private boolean vaShoping = false;// si es false, va directo a las actividades que ingresa por teclado
 	private Parque elParque;
 	private Transporte elColectivo;
-	private int actividadDeseada, llave;
-	private boolean tieneMochila, dejoMochila;
-
+	private int actividadDeseada, llave, ultimoRestaurante, ticketsRestaurante;
+	private boolean tieneMochila, dejoMochila, tieneEquipoSnorkel;
+	
 	private Random random = new Random();
 
 	public Visitante(String nom, Parque ecopcs, Transporte unColectivo) {
 
+		ultimoRestaurante = -1;
+		ticketsRestaurante = 2;
 		this.nombre = nom;
 		this.elParque = ecopcs;
 		elReloj = ecopcs.getReloj();
 		tieneMochila = random.nextBoolean();
 		dejoMochila = false;
+		tieneEquipoSnorkel = false;
 		this.vaEnColectivo = random.nextBoolean();
 		this.vaShoping = random.nextBoolean();
 		this.elColectivo = unColectivo;
@@ -52,6 +55,8 @@ public class Visitante implements Runnable {
 			System.out.println(this.getNombreCompleto() + " - Llego al parque");
 
 			elParque.realizarActividades(this);
+			
+			ultimoRestaurante = -1;
 		}
 	}
 
@@ -92,4 +97,33 @@ public class Visitante implements Runnable {
 		return this.dejoMochila;
 	}
 
+	public boolean getTieneEquipoSnorkel()
+	{
+		return tieneEquipoSnorkel;
+	}
+	
+	public void setTieneEquipoSnorkel(boolean valor) {
+		this.tieneEquipoSnorkel = valor;
+	}
+	
+	public int getCantTickets()
+	{
+		return this.ticketsRestaurante;
+	}
+	
+	public int getUltimoRestaurante()
+	{
+		return this.ultimoRestaurante;
+	}
+	
+	public void setUltimoRestaurante(int numero)
+	{
+		if(numero > -1)
+		{
+			this.ticketsRestaurante--;
+			this.ultimoRestaurante = numero;
+		}else {
+			System.err.println("No se pudo modificar el numero de restaurante");
+		}
+	}
 }

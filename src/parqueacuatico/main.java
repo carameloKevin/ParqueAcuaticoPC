@@ -14,7 +14,7 @@ public class main {
 
         int cantColectivos = 2;
         //int cantVisitantes = (int) (Math.random() * 70) + 10; 
-        int cantVisitantes = 50;
+        int cantVisitantes = 5;
         
         //Cargo Colectivos y colectiveros
         int cantAsientosColectivo = 25;

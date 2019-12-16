@@ -13,11 +13,14 @@ import java.util.Random;
  */
 public class Parque {
 
+	private final int CANT_RESTAURANTES = 3;
+	
 	private Random random = new Random();
 	private Reloj reloj;
     private Shop elShop = new Shop();
-    private Restaurante elRestaurante = new Restaurante();
-    private MainSnorkel actSnorkel;
+    private Restaurante[] restaurantes = new Restaurante[CANT_RESTAURANTES];
+    private NadoSnorkel actSnorkel = new NadoSnorkel();
+    private Asistente[] asistentesSnorkel = new Asistente[3];
     private FaroMirador elFaroTobogan = new FaroMirador();
     private CarreraGomones laCarreraGomones = new CarreraGomones();
     private MundoAventura elMundoAventura;
@@ -31,6 +34,21 @@ public class Parque {
     	//Lo inicialice aca porque no sabia bien si iba a funcionar si lo inicializa arriba con los otros
     	nadoDelfines = new NadoDelfines(reloj);
     	elMundoAventura = new MundoAventura(reloj);
+    	
+    	//Inicializo los asistntes y los ejecuto
+    
+    	for(int i = 0; i < asistentesSnorkel.length; i++)
+    	{
+    		asistentesSnorkel[i] = new Asistente("" + i, actSnorkel);
+    		(new Thread(asistentesSnorkel[i])).start();
+    	}
+    	
+    	
+    	//Inicializo los restaurantes
+    	for(int i = 0; i < CANT_RESTAURANTES; i++)
+    	{
+    		restaurantes[i] = new Restaurante(i);
+    	}
     }
     
     public void realizarCarreraGomones(Visitante unVisitante) {
@@ -57,6 +75,11 @@ public class Parque {
     	this.nadoDelfines.realizarNadoDelfines(unVisitante);
     }
     
+    public void realizarNadoSnorkel(Visitante unVisitante)
+    {
+    	this.actSnorkel.realizarNadoSnorkel(unVisitante);
+    }
+    
     public boolean estaAbierto()
     {
     	int hora = this.reloj.getHoraActual();
@@ -71,7 +94,7 @@ public class Parque {
 	public void realizarActividades(Visitante unVisitante) {
 		while(estaAbierto())
 		{
-			int numActividad = random.nextInt(7);
+			int numActividad = 1;//random.nextInt(7);
 			
 			switch(numActividad)
 			{
@@ -79,10 +102,14 @@ public class Parque {
 				realizarShop(unVisitante);
 				break;
 			case 1: //Restaurante
+				comerRestaurante(unVisitante);
+				break;
 			case 2: //Nado con delfines
 				realizarNadoDelfines(unVisitante);
 				break;
 			case 3: //Snorkel
+					realizarNadoSnorkel(unVisitante);
+					break;
 			case 4: 
 				realizarMundoAventura(unVisitante);
 				break;
@@ -93,8 +120,23 @@ public class Parque {
 				realizarCarreraGomones(unVisitante);
 				break;
 			default: //Restaurante
+				
 			}
 		}
 		
+	}
+
+	private void comerRestaurante(Visitante unVisitante) {
+		int numRestaurante = random.nextInt(CANT_RESTAURANTES);
+		
+		if(unVisitante.getCantTickets() > 0 && estaAbierto())
+		{
+			if(restaurantes[numRestaurante].comioEnRestaurante(unVisitante))
+			{
+				numRestaurante = (numRestaurante+1) % CANT_RESTAURANTES;
+			}
+			
+			restaurantes[numRestaurante].comerRestaurante(unVisitante);
+		}
 	}
 }
