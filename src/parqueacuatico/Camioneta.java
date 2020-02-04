@@ -1,5 +1,7 @@
 package parqueacuatico;
 
+import java.util.concurrent.CyclicBarrier;
+
 public class Camioneta implements Runnable{
 	
 	//Cuidado con cambiar esta cantidad. Tiene que ser igual que la CyclicBarrier de carreraDeGomones
@@ -14,6 +16,11 @@ public class Camioneta implements Runnable{
 	public Camioneta(String nombre, int capacidad)
 	{
 		espacio = new boolean[capacidad];
+		for(int i = 0; i < capacidad; i++)
+		{
+			espacio[i] = false;
+		}
+		
 		this.nombre = nombre;
 		estaOrigen = true;
 		estaDestino = false;
@@ -21,8 +28,10 @@ public class Camioneta implements Runnable{
 	
 	public synchronized boolean guardarBolso(Visitante unVisitante)
 	{	
+		//hay espacio?
 		boolean res = ultPos < espacio.length;
 		
+		//si no hay, o no esta en el lugar, espero
 		while(!res && !estaOrigen)
 		{
 			System.out.println(unVisitante.getNombreCompleto() + " - Esperando que haya lugar o que vuelva la camioneta");
@@ -35,11 +44,19 @@ public class Camioneta implements Runnable{
 			}
 		}
 		
-		if(res )
+		//si hay lugar
+		if(res)
 		{
-			res = espacio[ultPos];
+			//guardo la mochila
+			espacio[ultPos] = true;
+			//le digo que se guardo correctamente/ no es necesario
+			res = true;
+			//le doy la llave al visitante
 			unVisitante.dejarEquipamiento(ultPos);
+			//digo cuantas mochilas hay/ la ultima pos;
 			ultPos++;
+			//INTENTO notificar al chofer
+			notify();
 		}
 		
 		return res;
@@ -62,13 +79,17 @@ public class Camioneta implements Runnable{
 		espacio[unVisitante.getLlave()] = false;
 		unVisitante.recuperarBolso();
 		ultPos--;
+		notify();
 	}
 	
 	public void run() {
-		esperarEnOrigen();
-		viajar();
-		esperarEnDestino();
-		viajar();
+		while(true)
+		{
+			esperarEnOrigen();
+			viajar();
+			esperarEnDestino();
+			viajar();
+		}
 	}
 
 	private synchronized void esperarEnDestino() {
@@ -89,7 +110,7 @@ public class Camioneta implements Runnable{
 	private void viajar() {
 		System.out.println("CAMIONETA - Viajando");
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -97,8 +118,8 @@ public class Camioneta implements Runnable{
 
 	private synchronized void esperarEnOrigen() {
 		estaOrigen = true;
-		System.out.println("CAMIONETA - Esperando a que haya aunque sea 5/laCantidadDeGenteQueVaEnGomones bolsos como minimo");
-		while(ultPos < CANT_MIN_BOLSOS)
+		System.out.println("CAMIONETA - Esperando a que haya aunque sea un bolso");
+		while(ultPos == 0)
 		{
 			notify();
 			try {

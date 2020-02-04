@@ -25,13 +25,14 @@ class CarreraGomones {
 	private Camioneta camioneta;
 	private Transporte trencito;
 	private Chofer choferTrencito;
+	private Reloj elReloj;
 	CyclicBarrier barrera = new CyclicBarrier(3);
 	AtomicInteger posicionGomonesCarrera = new AtomicInteger(0);
 	private Semaphore[] gomonesSolo, gomonesDuo;
 	
-	public CarreraGomones()
+	public CarreraGomones(Reloj unReloj)
 	{
-		
+		elReloj = unReloj;
 		trencito = new Transporte("TREN 01", CANT_ASIENTOS_TREN);
 		choferTrencito = new Chofer("CHOFER_TREN 01", trencito);
 		(new Thread(choferTrencito)).start();
@@ -110,19 +111,27 @@ class CarreraGomones {
 			pudoSubirse = seleccionGomon[pos].tryAcquire();
 			if(!pudoSubirse)
 			{
-				pos = (pos+1) % cantidadGomones;	//Lo puse en un IF para poder guardar la POS una vez que subio a uno
+				pos = (pos+1) % cantidadGomones;	//Lo puse en un IF para poder guardar la POS una vez que subio a uno/No aumenta uno cuando se sube a uno exitosamente
 			}
 		}
-		System.out.println(unVisitante.getNombreCompleto() + " - Ya se subio al gomon, esperando para bajar");
-		try {
-			barrera.await(100, TimeUnit.MILLISECONDS);
-		} catch ( BrokenBarrierException | TimeoutException e) {
-			System.out.println(unVisitante.getNombreCompleto() + " - Se canso de esperar y salio con menos del limite<-----------------------------");
-		}catch(InterruptedException e)
-		{
-			
-		}
 		
+		System.out.println(unVisitante.getNombreCompleto() + " - Ya se subio al gomon, esperando para bajar");
+		
+		if(elReloj.getHoraActual() > 9 && elReloj.getHoraActual() < 17)
+		{
+			//Esta saliendo con tiempo, asi que espera un cacho a otros gomones
+			try {
+				barrera.await(100, TimeUnit.MILLISECONDS);
+			} catch ( BrokenBarrierException | TimeoutException e) {
+				System.out.println(unVisitante.getNombreCompleto() + " - Se canso de esperar y salio con menos del limite<-----------------------------");
+			}catch(InterruptedException e)
+			{
+			
+			}
+		}else {
+			//No espera a la barrera, asi que si habia gente esperando en la berrera, siguen esperando.
+			System.out.println(unVisitante.getNombreCompleto() + " - El parque esta cerrando, asi que me tire no mas");
+		}
 		System.out.println("CARRERAGOMONES - Sale el gomon "+ pos); 
 		
 		try {
