@@ -30,8 +30,8 @@ public class Transporte {
 		/*
 		 * No puse que espere una hora porque signifca sacar el await y dejar que cada una hora (usando Reloj) se fije,
 		 * lo cual no me suena muy concurrente. Hacer una mezcla de los dos no se me ocurrio,
-		 * hacer que se fije si hay pasajeros, signallALl(), esperar una hora y despues await()? no tiene sentido y sacarle
-		 * el await le saca lo concurrente, asi que quedo asi, cuando se sube uno, ya puede arrancar, 
+		 * (hacer que se fije si hay pasajeros, signallALl(), esperar una hora y despues await()? no tiene sentido y sacarle
+		 * el await le saca lo concurrente) asi que quedo asi, cuando se sube uno, ya puede arrancar, 
 		 * si se subio alguien mas, buenisimo
 		 */
 		while(cantPasajeros < 1) {

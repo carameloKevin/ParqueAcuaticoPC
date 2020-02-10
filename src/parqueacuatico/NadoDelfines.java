@@ -122,7 +122,7 @@ public class NadoDelfines {
 			}
 			
 			//Comienza el show en otra cosa, el visitante no hace ningun Thread.sleep ni nada, solo pasa de aca a querer salir
-			System.out.println(unVisitante.getNombreCompleto() + " - Es un milenial que no puede ni esperar dos minutos en el show que ya se quiere ir. Esta esperando que termine para irse");
+			System.out.println(unVisitante.getNombreCompleto() + " - Recien empieza el show de delfines y ya se quiere ir. Esta esperando que termine para irse");
 			//Salir del show
 			try {
 				salirDelShow.await();

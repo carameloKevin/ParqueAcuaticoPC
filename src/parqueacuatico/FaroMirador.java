@@ -1,8 +1,8 @@
 
 package parqueacuatico;
-import java.util.LinkedList;
-import java.util.concurrent.SynchronousQueue;
+
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 //import java.util.concurrent.SynchronousQueue;
@@ -14,9 +14,11 @@ import java.util.logging.Logger;
     public class FaroMirador{
     /*La escalera es una linkedList para poder implementar sincronizacion alrededor
     Podria haber usar la SynchronousQueue*/
-    private SynchronousQueue<Visitante> escalera;  
-    //Cada semaforo representa un tobogan
-    private Semaphore toboganes,subirEscalera, mutex;
+    //private SynchronousQueue<Visitante> escalera;  
+    
+    	//Cada semaforo representa un tobogan
+    	private Semaphore toboganes,subirEscalera;    	
+    	private Reloj unReloj;
     
     /*
     Decidi hacerlo con Semaphore porque queda medio feo con integer
@@ -25,11 +27,12 @@ import java.util.logging.Logger;
     private Integer tobaganesOcupados;
     */
     
-    public FaroMirador() {
+    public FaroMirador(Reloj elReloj) {
         
         //this.escalera = new SynchronousQueue<Visitante>(true); //true para que sea FIFO
         this.toboganes = new Semaphore(2,true);
         this.subirEscalera = new Semaphore(1,true);
+        this.unReloj = elReloj;
     }
     
     public void realizarFaroMirador(Visitante unVisitante){
@@ -47,6 +50,7 @@ import java.util.logging.Logger;
     	
         //Se sube un visitante a la escalera del faro
         System.out.println(unVisit.getNombreCompleto() + " FARO - Visitate Nro " + unVisit.getNombreCompleto() +" INTENTA subir al faro");
+        
         try {
             subirEscalera.acquire();
         } catch (InterruptedException ex) {
@@ -80,9 +84,14 @@ import java.util.logging.Logger;
         //Se tira por el tobogan
         //!!NOTA - Yo puse un el metodo Thread.Sleep() aca dentro. Cuando va a este metodo, sigue el syncronized? mas que nada por el tema que no haga un Sleep mientras esta sincronizado
         subirEscalera.release();
-    	System.out.println(unVisit.getNombreCompleto() + " FARO - Es mi turno de tirarme!");
-        tirarseTobogan(unVisit);
         
+        if(unReloj.getHoraActual() > 9 && unReloj.getHoraActual() < 18)
+        {
+        	System.out.println(unVisit.getNombreCompleto() + " FARO - Es mi turno de tirarme!");
+        	tirarseTobogan(unVisit);
+        }else {
+        	System.out.println(unVisit.getNombreCompleto() + " - Me hecharon del tobogan");
+        }
         
     }
 
@@ -115,6 +124,7 @@ import java.util.logging.Logger;
             //Solo toma un semaforo, simula que se tira y suelta el semaforo
         	
             System.out.println(unVisit.getNombreCompleto() + " FARO - Intento obtener el semaforo del tobogan");
+            
             toboganes.acquire();
             
             System.out.println(unVisit.getNombreCompleto() + " FARO - Obtuve el semaforo del tobogan, me tiro");

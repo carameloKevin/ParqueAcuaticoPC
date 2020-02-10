@@ -21,8 +21,8 @@ public class Parque {
     private Restaurante[] restaurantes = new Restaurante[CANT_RESTAURANTES];
     private NadoSnorkel actSnorkel = new NadoSnorkel();
     private Asistente[] asistentesSnorkel = new Asistente[3];
-    private FaroMirador elFaroTobogan = new FaroMirador();
-    private CarreraGomones laCarreraGomones = new CarreraGomones();
+    private FaroMirador elFaroTobogan;
+    private CarreraGomones laCarreraGomones;
     private MundoAventura elMundoAventura;
     private NadoDelfines nadoDelfines;
     
@@ -34,7 +34,8 @@ public class Parque {
     	//Lo inicialice aca porque no sabia bien si iba a funcionar si lo inicializa arriba con los otros
     	nadoDelfines = new NadoDelfines(reloj);
     	elMundoAventura = new MundoAventura(reloj);
-    	
+    	elFaroTobogan = new FaroMirador(reloj);
+    	laCarreraGomones = new CarreraGomones(reloj);
     	//Inicializo los asistntes y los ejecuto
     
     	for(int i = 0; i < asistentesSnorkel.length; i++)
@@ -83,7 +84,7 @@ public class Parque {
     public boolean estaAbierto()
     {
     	int hora = this.reloj.getHoraActual();
-    	return (hora >= 9 && hora <= 17);
+    	return (hora >= 9 && hora < 17);
     }
     
     public Reloj getReloj()
@@ -94,7 +95,8 @@ public class Parque {
 	public void realizarActividades(Visitante unVisitante) {
 		while(estaAbierto())
 		{
-			int numActividad = 1;//random.nextInt(7);
+			//int numActividad = 4;		//Debug
+			int numActividad = random.nextInt(7);
 			
 			switch(numActividad)
 			{
@@ -108,7 +110,7 @@ public class Parque {
 				realizarNadoDelfines(unVisitante);
 				break;
 			case 3: //Snorkel
-					realizarNadoSnorkel(unVisitante);
+				//	realizarNadoSnorkel(unVisitante);
 					break;
 			case 4: 
 				realizarMundoAventura(unVisitante);
@@ -119,8 +121,9 @@ public class Parque {
 			case 6: //Carrera Gomones
 				realizarCarreraGomones(unVisitante);
 				break;
-			default: //Restaurante
-				
+			default: //No deberia pasar, pero bue¸siempre tiene que ver un default
+				System.out.println("Dio un paseo por el parque");
+				break;
 			}
 		}
 		

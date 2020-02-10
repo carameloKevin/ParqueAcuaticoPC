@@ -4,12 +4,15 @@ import java.util.Random;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 
 public class MundoAventura {
 
 	//LinkedBlockingQueue<Visitante> filaCuerdas, filaTirolesa, filaSalto;
-	Semaphore filaCuerdas, filaTirolesa, filaSalto, tirolesaEste, tirolesaOeste;
+	Semaphore filaCuerdas, filaTirolesa, filaSalto, tirolesaEste, tirolesaOeste, mutex;
+	AtomicInteger este = new AtomicInteger(0);
+	AtomicInteger oeste = new AtomicInteger(1);
 	Random random = new Random();
 	int genteEste = 0, genteOeste = 0;
 	Reloj reloj;
@@ -21,6 +24,7 @@ public class MundoAventura {
 		this.filaSalto = new Semaphore(2, true);
 		this.tirolesaEste = new Semaphore(1);
 		this.tirolesaOeste = new Semaphore(0);
+		this.mutex = new Semaphore(1);
 		reloj = elReloj;
 	}
 	
@@ -61,6 +65,7 @@ public class MundoAventura {
 		System.out.println(unVisitante.getNombreCompleto() + " - Esta haciendo fila para las cuerdas de Mundo Aventura");
 		try {
 			filaCuerdas.acquire();
+			
 			System.out.println(unVisitante.getNombreCompleto() + " - Esta haciendo las cuerdas en Mundo Aventura");
 			Thread.sleep(100);
 		} catch (InterruptedException e) {
@@ -78,6 +83,12 @@ public class MundoAventura {
 		System.out.println(unVisitante.getNombreCompleto() + " - Comenza a hacer fila para las tirolesas");
 		try {
 			filaTirolesa.acquire();
+			
+			
+			/*
+			 Los dos tryAcquire se pueden ""Contrarrestar"", uno esta pidiendo un lado y fuerza tomar el otro lado y el otro hace lo mismo
+			 */
+			
 			if(seTiraPorLadoEste)
 			{
 				tirarseLadoEste(unVisitante);
@@ -96,11 +107,13 @@ public class MundoAventura {
 	private void tirarseLadoOeste(Visitante unVisitante) {
 		System.out.println(unVisitante.getNombreCompleto() + " - Se quiere tirar por el lado Oeste");
 		try {
+			
 			if(!tirolesaOeste.tryAcquire(100, TimeUnit.MILLISECONDS))
 			{
 				tirolesaEste.acquire();
 				System.out.println(unVisitante.getNombreCompleto() + " - Parece que nadie viene, asi que la tirolesa fue movida de ESTE -> OESTE");
 			}
+			
 			System.out.println(unVisitante.getNombreCompleto() + " - Se tiro por la tirolesa");
 			Thread.sleep(100);
 		} catch (InterruptedException e) {
@@ -110,16 +123,19 @@ public class MundoAventura {
 		
 		System.out.println(unVisitante.getNombreCompleto() + " - Termino de tirarse por la tirolesa. La tirolesa ahora esta en el Este");
 		tirolesaEste.release();
+
 	}
 
 	private void tirarseLadoEste(Visitante unVisitante) {
 		System.out.println(unVisitante.getNombreCompleto() + " - Se quiere tirar por el lado Este");
 		try {
+			
 			if(!tirolesaEste.tryAcquire(100, TimeUnit.MILLISECONDS))
 			{
 				tirolesaOeste.acquire();
 				System.out.println(unVisitante.getNombreCompleto() + " - Parece que nadie viene, asi que la tirolesa fue movida de OESTE -> ESTE");
 			}
+			
 			System.out.println(unVisitante.getNombreCompleto() + " - Se tiro por la tirolesa");
 			Thread.sleep(100);
 		} catch (InterruptedException e) {
@@ -146,5 +162,55 @@ public class MundoAventura {
 		System.out.println(unVisitante.getNombreCompleto() + " - Termino el salto");
 	}
 	
+
+	
+	
+	/*
+	 * 
+	 * Metodos nuevos porque andan mal los de arriba
+	 * 
+	 */
+	
+	public void tirarseLadoEsteNuevo(Visitante unVisitante)
+	{
+		System.out.println(unVisitante.getNombreCompleto() + " - Se quiere tirar por el lado Este");
+		try {
+			
+			
+			
+			mutex.acquire(); //<---------------
+			
+			
+			
+			if(!tirolesaEste.tryAcquire(100, TimeUnit.MILLISECONDS))
+			{
+				tirolesaOeste.acquire();
+				System.out.println(unVisitante.getNombreCompleto() + " - Parece que nadie viene, asi que la tirolesa fue movida de OESTE -> ESTE");
+			}
+			
+			
+			mutex.release(); //----------------->
+			
+			
+			System.out.println(unVisitante.getNombreCompleto() + " - Se tiro por la tirolesa");
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		System.out.println(unVisitante.getNombreCompleto() + " - Termino de tirarse por la tirolesa. La tirolesa ahora esta en el Oeste");
+		tirolesaOeste.release();
+	}
 	
 }
+
+
+
+
+
+
+
+
+
+
