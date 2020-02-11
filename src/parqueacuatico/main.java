@@ -13,14 +13,15 @@ public class main {
         Parque elParque = new Parque();
 
         int cantColectivos = 2;
-        int cantVisitantes = (int) (Math.random() * 70) + 10; 
-        //int cantVisitantes = 2;
+        //int cantVisitantes = (int) (Math.random() * 70) + 10; 
+        int cantVisitantes = 5;
         
         //Cargo Colectivos y colectiveros
         int cantAsientosColectivo = 25;
         Transporte[] colectivos   = new Transporte[cantColectivos];
         Thread[] colectiveros = new Thread[cantColectivos];
         
+        //Inicializo los colectivos
         for(int i = 0; i < cantColectivos; i++)
         {
         	colectivos[i] = new Transporte("COLECTIVO " + i, cantAsientosColectivo);

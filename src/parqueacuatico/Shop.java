@@ -56,6 +56,7 @@ public class Shop {
         //Sincronizo la primer parte del bloque para poder hacer los notifiy y waits y tambien para que pueda ver la colaCompras sin que se este modificando justo cuando la ve
         synchronized(this)
         {
+        	//Fila improvisada, no me parece muy linda
             if(!(colaCompras.peek().equals(unVisit)))
             {
                 try {

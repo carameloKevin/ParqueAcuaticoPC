@@ -34,6 +34,6 @@ public class Asistente implements Runnable {
     
     public String getNombreCompleto()
     {
-    	return "AsistenteSnorkel" + id;
+    	return "AsistenteSnorkel " + id;
     }
 }

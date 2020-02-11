@@ -80,8 +80,8 @@ class NadoSnorkel {
 		System.out.println(unVisitante.getNombreCompleto() + " - Ya se anoto a la lista de espera. Esperando recibir equipo");
 		while (!unVisitante.getTieneEquipoSnorkel()) {
 			
-			System.out.println(unVisitante.getNombreCompleto() + " Eseprando entreguen snorkel");
-			notifyAll();
+			//System.out.println(unVisitante.getNombreCompleto() + " Eseprando entreguen snorkel");
+			notify();
 			
 			try {
 				wait();
@@ -106,7 +106,7 @@ class NadoSnorkel {
 
 		System.out.println(unVisitante.getNombreCompleto() + " - Ya recibio su equipo. Comenzo a nadar");
 		try {
-			Thread.sleep(700);
+			Thread.sleep(100);
 		} catch (InterruptedException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();

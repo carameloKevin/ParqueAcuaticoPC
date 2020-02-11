@@ -56,6 +56,7 @@ public class Visitante implements Runnable {
 
 			elParque.realizarActividades(this);
 			
+			//Reseteo el ultimo restaurante en el que comio
 			ultimoRestaurante = -1;
 		}
 	}
