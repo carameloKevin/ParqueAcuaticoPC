@@ -16,6 +16,7 @@ class Restaurante {
     
 	private int numero = -1;
 	private Semaphore capacidad = new Semaphore(30, true);
+	private String tipoComida = "Almorzar";
 	
 	public Restaurante(int numRes)
 	{
@@ -30,23 +31,29 @@ class Restaurante {
 	public void comerRestaurante(Visitante unVisitante)
 	{
 		//Antes de usar este metodo se tiene que estar seguro que ya no comio aca, este metodo no se hace responsable de eso
-		System.out.println(unVisitante.getNombreCompleto() + " - Quiere entrar a comer a " + this.getNombreCompleto());
+		
+		//Verifico si ya comio antes o no, para definir si almuerza o merenda
+		if(unVisitante.getUltimoRestaurante() >= 0)
+		{
+			tipoComida = "MERENDAR";
+		}else {
+			tipoComida = "ALMORZAR";
+		}
+		
+		System.out.println(unVisitante.getNombreCompleto() + " - Quiere entrar a " + tipoComida + " a " + this.getNombreCompleto());
 		System.out.println(unVisitante.getNombreCompleto() + " - Esta haciendo fila para entrar");
 		
 		//Este if se puede cambiar por un acquire si queres que se quede siempre parado ahi
 		try {
-			if(capacidad.tryAcquire(1000, TimeUnit.MILLISECONDS)) {
-				
-				System.out.println(unVisitante.getNombreCompleto() + " - Pudo entrar al Restaurante sin problema y comenzo a comer");
+			
+				capacidad.acquire();
+				System.out.println(unVisitante.getNombreCompleto() + " - Pudo entrar al Restaurante sin problema y comenzo a " + tipoComida);
 				
 				Thread.sleep(1000);
 				
 				unVisitante.setUltimoRestaurante(numero);
 				capacidad.release();
-				System.out.println(unVisitante.getNombreCompleto() + " -  Se esta yendo del restaurante despues de comer");
-			}else {
-				System.out.println(unVisitante.getNombreCompleto() + " - Se canso de esperar y se fue");
-			}
+				System.out.println(unVisitante.getNombreCompleto() + " -  Se esta yendo del restaurante despues de " + tipoComida);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

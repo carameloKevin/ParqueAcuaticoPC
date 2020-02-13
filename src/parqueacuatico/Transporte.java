@@ -6,14 +6,14 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Transporte {
 	
-	private String nombreTransporte = this.getClass().toString();
-	private int cantAsientos;
-	private int cantPasajeros;
-	private boolean estaEstacion, estaDestino;
-	private Lock lock = new ReentrantLock();
-	private Condition subirse = lock.newCondition();
-	private Condition bajarse = lock.newCondition();
-	private Condition arrancar = lock.newCondition();	
+	protected String nombreTransporte = this.getClass().toString();
+	protected int cantAsientos;
+	protected int cantPasajeros;
+	protected boolean estaEstacion, estaDestino;
+	protected Lock lock = new ReentrantLock();
+	protected Condition subirse = lock.newCondition();
+	protected Condition bajarse = lock.newCondition();
+	protected Condition arrancar = lock.newCondition();	
 	
 	public Transporte(String nro, int cantAsientosLibres) {
 		this.nombreTransporte=nro;

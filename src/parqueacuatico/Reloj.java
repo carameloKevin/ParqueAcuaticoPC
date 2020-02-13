@@ -19,7 +19,7 @@ public class Reloj implements Runnable {
 	public void run() {
 		while (true) {
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(5000);
 				
 				lock.lock();
 				if (horaActual == 23) {
@@ -39,7 +39,7 @@ public class Reloj implements Runnable {
 			}finally {
 				lock.unlock();
 			}
-			System.out.println("----------------HORA ACTUAL: " + horaActual);
+			System.out.println("----------------HORA ACTUAL: " + horaActual + "----------------");
 		}
 
 	}
@@ -67,7 +67,7 @@ public class Reloj implements Runnable {
 		pero si se pasa de las 18, se despierta y sale*/
 		try {
 			lock.lock();
-			cierreParque.await(1000, TimeUnit.MILLISECONDS);
+			cierreParque.await(4000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}finally {

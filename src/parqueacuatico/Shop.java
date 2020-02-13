@@ -29,11 +29,8 @@ public class Shop {
     - Va a la cola. Hay una cola para dos cajas. Es igual que el faro mirador
     - Tengo que hacerlo con Lock, porque si no es lo exactamente igual que el faroMirador
     */
-    
-    private final ConcurrentLinkedQueue<Visitante> colaCompras = new ConcurrentLinkedQueue();
-    /*No se si puedo hacerlo con lock por el tema que tengo 2 cajas
-    private ReentrantLock cajas = new ReentrantLock();*/
-    private Semaphore cajas = new Semaphore(2);
+	
+    private Semaphore cajas = new Semaphore(2, true);
     
     public void entrarAComprar(Visitante unVisit)
     {
@@ -45,51 +42,25 @@ public class Shop {
             Logger.getLogger(Shop.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public void hacerFila(Visitante unVisit){
-        System.out.println(unVisit.getNombreCompleto() + " SHOP - Se esta metiendo en la fila");
-        colaCompras.add(unVisit);
-        System.out.println(unVisit.getNombreCompleto() + " SHOP - Se metio en la fila");
+   
+    public void pagarCompra(Visitante unVisitante)
+    {
+    	System.out.println(unVisitante.getNombreCompleto() + " - Esta por empezar a hacer fila para comprar");
+    	try {
+			cajas.acquire();
+	    	System.out.println(unVisitante.getNombreCompleto() + " - Esta pagando su compra");
+	    	Thread.sleep(500);
+	    	cajas.release();
+	    	System.out.println(unVisitante.getNombreCompleto() + " - Termino las compras");
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
     }
     
-    public void pagarCompra(Visitante unVisit){
-        //Sincronizo la primer parte del bloque para poder hacer los notifiy y waits y tambien para que pueda ver la colaCompras sin que se este modificando justo cuando la ve
-        synchronized(this)
-        {
-        	//Fila improvisada, no me parece muy linda
-            if(!(colaCompras.peek().equals(unVisit)))
-            {
-                try {
-                    System.out.println(unVisit.getNombreCompleto() + " SHOP - No es mi turno de pagar");
-                    //Notifico a otro hilo que este esperando y me duermo
-                        this.notify();
-                        this.wait();
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(Shop.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                System.out.println(unVisit.getNombreCompleto() + " SHOP - Intento pagar de nuevo");
-            }
-        }
-        System.out.println(unVisit.getNombreCompleto() + " SHOP - Hay una caja libre?");
-        
-        try {
-            //Tomo una de las dos cajas
-            cajas.acquire();
-            System.out.println(unVisit.getNombreCompleto() + " SHOP - Hay una caja libre!");
-            System.out.println("DEBUG SHOP En el frente de la fila esta -->>" + ((Visitante)colaCompras.poll()).getNombreCompleto());
-            Thread.sleep(100);
-            System.out.println(unVisit.getNombreCompleto() + " SHOP - Ya termino de pagar!");
-        } catch (InterruptedException ex) {
-        }finally{
-            cajas.release();
-        }
-        System.out.println(unVisit.getNombreCompleto() + " SHOP - Ya libero la caja y se fue");
-    }
-
-	public void realizarShop(Visitante unVisitante) {
+    
+   	public void realizarShop(Visitante unVisitante) {
 
 		entrarAComprar(unVisitante);
-		hacerFila(unVisitante);
 		pagarCompra(unVisitante);
 		
 	}

@@ -6,6 +6,7 @@
 package parqueacuatico;
 
 import java.util.Random;
+import java.util.concurrent.Semaphore;
 
 /**
  *
@@ -17,6 +18,7 @@ public class Parque {
 	
 	private Random random = new Random();
 	private Reloj reloj;
+	private Semaphore molinetes = new Semaphore(6, true);
     private Shop elShop = new Shop();
     private Restaurante[] restaurantes = new Restaurante[CANT_RESTAURANTES];
     private NadoSnorkel actSnorkel = new NadoSnorkel();
@@ -26,10 +28,10 @@ public class Parque {
     private MundoAventura elMundoAventura;
     private NadoDelfines nadoDelfines;
     
-    public Parque()
+    
+    public Parque(Reloj unReloj)
     {
-    	reloj = new Reloj();
-    	new Thread(reloj).start();
+    	reloj = unReloj;
     	
     	//Lo inicialice aca porque no sabia bien si iba a funcionar si lo inicializa arriba con los otros
     	nadoDelfines = new NadoDelfines(reloj);
@@ -95,7 +97,7 @@ public class Parque {
 	public void realizarActividades(Visitante unVisitante) {
 		while(estaAbierto())
 		{
-			int numActividad = 3;		//Debug
+			int numActividad = 1;		//Debug
 			//int numActividad = random.nextInt(7);
 			
 			switch(numActividad)
@@ -141,5 +143,20 @@ public class Parque {
 			
 			restaurantes[numRestaurante].comerRestaurante(unVisitante);
 		}
+	}
+
+	public void entrarParque(Visitante visitante) {
+		System.out.println(visitante.getNombreCompleto() + " - Esta ingresando al parque por los molinetes");
+		try {
+			molinetes.acquire();
+			Thread.sleep(100);
+			molinetes.release();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		System.out.println(visitante.getNombreCompleto() + " - Ingreso bien por los molinetes");
+		
 	}
 }

@@ -11,15 +11,14 @@ public class Visitante implements Runnable {
 	private Reloj elReloj;
 	private String nombre;
 	private boolean vaEnColectivo = false;
-	private boolean vaShoping = false;// si es false, va directo a las actividades que ingresa por teclado
 	private Parque elParque;
-	private Transporte elColectivo;
-	private int actividadDeseada, llave, ultimoRestaurante, ticketsRestaurante;
+	private TransporteHora elColectivo;
+	private int llave, ultimoRestaurante, ticketsRestaurante;
 	private boolean tieneMochila, dejoMochila, tieneEquipoSnorkel;
 	
 	private Random random = new Random();
 
-	public Visitante(String nom, Parque ecopcs, Transporte unColectivo) {
+	public Visitante(String nom, Parque ecopcs, TransporteHora unColectivo) {
 
 		ultimoRestaurante = -1;
 		ticketsRestaurante = 2;
@@ -29,8 +28,7 @@ public class Visitante implements Runnable {
 		tieneMochila = random.nextBoolean();
 		dejoMochila = false;
 		tieneEquipoSnorkel = false;
-		this.vaEnColectivo = random.nextBoolean();
-		this.vaShoping = random.nextBoolean();
+		this.vaEnColectivo = true;//random.nextBoolean();
 		this.elColectivo = unColectivo;
 	}
 
@@ -41,7 +39,6 @@ public class Visitante implements Runnable {
 				System.out.println(this.getNombreCompleto() + " - El parque esta cerrado, vuelvo mañana");
 				elParque.getReloj().esperarUnaHora();
 			}
-			
 
 			System.out.println(this.getNombreCompleto() + " - COMIENZO");
 
@@ -54,10 +51,12 @@ public class Visitante implements Runnable {
 
 			System.out.println(this.getNombreCompleto() + " - Llego al parque");
 
+			elParque.entrarParque(this);
 			elParque.realizarActividades(this);
 			
 			//Reseteo el ultimo restaurante en el que comio
 			ultimoRestaurante = -1;
+			this.ticketsRestaurante = 2;
 		}
 	}
 
@@ -66,7 +65,7 @@ public class Visitante implements Runnable {
 		return "VISITANTE " + nombre;
 	}
 
-	public void setTransporte(Transporte unColectivo) {
+	public void setTransporte(TransporteHora unColectivo) {
 		this.elColectivo = unColectivo;
 	}
 
