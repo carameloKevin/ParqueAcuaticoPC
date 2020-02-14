@@ -12,6 +12,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReentrantLock;
 
 class CarreraGomones {
     
@@ -19,16 +20,23 @@ class CarreraGomones {
 	private final int CANT_ASIENTOS_TREN = 15;
 	private final int CANT_ESPACIO_CAMIONETA = 20;
 	private final int CANT_GOMONES = 5;
+	
 	private int cantGomonesSolo = CANT_GOMONES;
 	private int cantGomonesDuo = CANT_GOMONES;
-	private int ultPosDuo = 0, cantidadGomones;
+	private int ultPosDuo = 0;
+	private int ultPosSolo = 0;
+	private boolean yaHabiaAlguienDuo = false;
+	
 	private Camioneta camioneta;
 	private Transporte trencito;
+	private Gomon[] gomonesSolo = new Gomon[cantGomonesSolo];
+	private Gomon[] gomonesDuo = new Gomon[cantGomonesDuo];
+	private Chofer[] instructoresGuias = new Chofer[cantGomonesSolo + cantGomonesDuo];
 	private Chofer choferTrencito;
 	private Reloj elReloj;
+	private ReentrantLock lock = new ReentrantLock();
 	CyclicBarrier barrera = new CyclicBarrier(3);
 	AtomicInteger posicionGomonesCarrera = new AtomicInteger(0);
-	private Semaphore[] gomonesSolo, gomonesDuo;
 	
 	public CarreraGomones(Reloj unReloj)
 	{
@@ -38,117 +46,81 @@ class CarreraGomones {
 		(new Thread(choferTrencito)).start();
 		
 		camioneta = new Camioneta("CAMIONETA 01", CANT_ESPACIO_CAMIONETA);
-		(new Thread(camioneta)).start();;
-		//gomonesSolo = new Gomon[CANT_GOMONES];
-		//gomonesDuo = new Gomon[CANT_GOMONES];
-		//inicializarGomones();
+		(new Thread(camioneta)).start();
 		
-		gomonesSolo = new Semaphore[cantGomonesSolo];
-		gomonesDuo = new Semaphore[cantGomonesDuo];
 		inicializarGomones();
 	}
 	
 	private void inicializarGomones() {
 		
+		//Podria haber inicializado los dos en el mismo for
+		
 		for(int i = 0; i < cantGomonesSolo; i++)
 		{
-		/*	
-			//gomonesSolo[i] = new Gomon("Solo " + i, barrera, 1, posicionGomonesCarrera);
-			//new Thread(gomonesSolo[i]).start();
-			
-			//gomonesDuo[i] = new Gomon("Duo "+ i, barrera, 2, posicionGomonesCarrera);
-			//new Thread(gomonesDuo[i]).start();
-		*/
-			
-			gomonesSolo[i] = new Semaphore(1);
+			gomonesSolo[i] = new Gomon("GomonSolo" + i,1,1, barrera, posicionGomonesCarrera);
+			new Thread(new Chofer("INSTRUCTORGOMON 1" + i, gomonesSolo[i])).start();
 		}
 		
 		for(int i = 0; i < cantGomonesDuo; i++)
 		{
-			gomonesDuo[i] = new Semaphore(2);
+			gomonesDuo[i] = new Gomon("GomonDuo" + i, 2,2, barrera, posicionGomonesCarrera);
+			new Thread(new Chofer("INSTRUCTORGOMON 2" + i, gomonesDuo[i])).start();
 		}
 	}
 
 	public void realizarCarreraGomones(Visitante unVisitante)
 	{
-		Semaphore[] seleccionGomon;
-		boolean viajaDuo = (cantGomonesDuo > 0) && random.nextBoolean();
-		boolean pudoSubirse = false;
-		int pos = 0;
+		boolean subeEnBici = random.nextBoolean();
+		boolean vaEnDuo;
+		Gomon elGomon;
 		
-		System.out.println(unVisitante.getNombreCompleto() + " - Empezo la actividad de carrera de gomones");
-		if(random.nextBoolean())
+		//Metodo para subir
+		if(subeEnBici)
 		{
 			subirEnBici(unVisitante);
-		}else {
+		}else{
 			subirEnTrencito(unVisitante);
 		}
 		
-		
+		//Guarda bolso del visitante
 		if(unVisitante.getTieneMochila())
 		{
-			System.out.println(unVisitante.getNombreCompleto() + " - Esta guardando las cosas");
+			System.out.println(unVisitante.getNombreCompleto() + " - Dejo la mochila en la camioneta");
 			camioneta.guardarBolso(unVisitante);
-			System.out.println(unVisitante.getNombreCompleto() + " - Guardo sus cosas bien");
 		}
 		
+		//Subida, carrera (adentro de gomones) y descenso de gomones
 		
-		//Busca un gomon libre para subirse, se sube al primero que encuentra
+		vaEnDuo = random.nextBoolean();
 		
-		if(viajaDuo)
+		
+		//Este lock esta por elGomon, ultPosDuo/Solo y yaHabiaAlguienDuo. Lo necesito para cuidar esas variables
+		//elGomon lo podria sacar y que lo guarde el visitante, pero no me gusto mucho la idea
+		System.out.println("-------------------");
+		lock.lock();
+		System.out.println("==================");
+		if(vaEnDuo)
 		{
-			seleccionGomon = gomonesDuo;
-			cantidadGomones = cantGomonesDuo;
-			pos = ultPosDuo;	//Va al ultimo gomon doble que alguien se subio para ver si hay alguien esperando
-		}else {
-			seleccionGomon = gomonesSolo;
-			cantidadGomones = cantGomonesSolo;
-		}
-		
-		while(!pudoSubirse)
-		{
-			//Intenta hasta subirse a un gomon. Si no pudo, continua intentado;
-			pudoSubirse = seleccionGomon[pos].tryAcquire();
-			if(!pudoSubirse)
-			{
-				pos = (pos+1) % cantidadGomones;	//Lo puse en un IF para poder guardar la POS una vez que subio a uno/No aumenta uno cuando se sube a uno exitosamente
-			}
-		}
-		
-		System.out.println(unVisitante.getNombreCompleto() + " - Ya se subio al gomon, esperando para bajar");
-		
-		if(elReloj.getHoraActual() > 9 && elReloj.getHoraActual() < 17)
-		{
-			//Esta saliendo con tiempo, asi que espera un cacho a otros gomones
-			try {
-				barrera.await(100, TimeUnit.MILLISECONDS);
-			} catch ( BrokenBarrierException | TimeoutException e) {
-				System.out.println(unVisitante.getNombreCompleto() + " - Se canso de esperar y salio con menos del limite<-----------------------------");
-			}catch(InterruptedException e)
-			{
+			elGomon = gomonesDuo[ultPosDuo];
+			gomonesDuo[ultPosDuo].subirPasajero(unVisitante);
 			
+			yaHabiaAlguienDuo = !yaHabiaAlguienDuo;
+			if(!yaHabiaAlguienDuo)
+			{
+				ultPosDuo = (ultPosDuo + 1) % cantGomonesDuo; 
 			}
-		}else {
-			//No espera a la barrera, asi que si habia gente esperando en la berrera, siguen esperando.
-			System.out.println(unVisitante.getNombreCompleto() + " - El parque esta cerrando, asi que me tire no mas");
+		} else {
+			elGomon = gomonesSolo[ultPosSolo];
+			gomonesSolo[ultPosSolo].subirPasajero(unVisitante);
+			ultPosSolo = (ultPosSolo+1) % cantGomonesSolo;
 		}
-		System.out.println("CARRERAGOMONES - Sale el gomon "+ pos); 
+		lock.unlock();
 		
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		//La carrera la hacen los gomones por su cuenta entre ellos, compartiendo la cyclicbarrier.
+		elGomon.bajarPasajero(unVisitante);
 		
-		System.out.println("CARRERAGOMONES - LLego a la meta el gomon " + pos);
-		seleccionGomon[pos].release();
 		
-		if(unVisitante.getDejoMochila())
-		{
-			camioneta.recuperarBolso(unVisitante);
-		}
 		
-		System.out.println(unVisitante.getNombreCompleto()+ " - Termino la carrera de gomones");
 	}
 
 	public void subirEnBici(Visitante unVisitante)
@@ -166,6 +138,7 @@ class CarreraGomones {
 
 	public void subirEnTrencito(Visitante unVisitante)
 	{
+		//Funciona igual que el Colectivo
 		trencito.subirPasajero(unVisitante);
 		trencito.bajarPasajero(unVisitante);
 	}

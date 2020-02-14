@@ -97,7 +97,7 @@ public class Parque {
 	public void realizarActividades(Visitante unVisitante) {
 		while(estaAbierto())
 		{
-			int numActividad = 3;		//Debug
+			int numActividad = 6;		//Debug
 			//int numActividad = random.nextInt(7);
 			
 			switch(numActividad)

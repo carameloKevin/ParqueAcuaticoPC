@@ -9,6 +9,7 @@ public class Transporte {
 	protected String nombreTransporte = this.getClass().toString();
 	protected int cantAsientos;
 	protected int cantPasajeros;
+	protected int cantMinimaGente = 1;
 	protected boolean estaEstacion, estaDestino;
 	protected Lock lock = new ReentrantLock();
 	protected Condition subirse = lock.newCondition();
@@ -21,21 +22,22 @@ public class Transporte {
 		estaEstacion = false;
 		estaDestino = false;
 	}
+	
+	public Transporte(String nro, int cantAsientosLibres, int cantMinimaGente) {
+		this.nombreTransporte=nro;
+		this.cantAsientos = cantAsientosLibres;
+		estaEstacion = false;
+		estaDestino = false;
+		this.cantMinimaGente = cantMinimaGente;
+	}
 
-	public void  esperarSubidaPasajeros() {
+	public void esperarSubidaPasajeros() {
 		System.out.println(nombreTransporte + " - Comienza esperarSubidaPasajero");
 		lock.lock();
 		estaEstacion = true;
-		//Espera que se suba alguien
-		/*
-		 * No puse que espere una hora porque signifca sacar el await y dejar que cada una hora (usando Reloj) se fije,
-		 * lo cual no me suena muy concurrente. Hacer una mezcla de los dos no se me ocurrio,
-		 * (hacer que se fije si hay pasajeros, signallALl(), esperar una hora y despues await()? no tiene sentido y sacarle
-		 * el await le saca lo concurrente) asi que quedo asi, cuando se sube uno, ya puede arrancar, 
-		 * si se subio alguien mas, buenisimo
-		 */
-		while(cantPasajeros < 1) {
-			System.out.println(nombreTransporte + "  - Espero a que se suba alguien. Pasajeros actuales: " + cantPasajeros);
+		
+		while(cantPasajeros < cantMinimaGente) {
+			System.out.println(nombreTransporte + "  - Espero a que se suban " + cantMinimaGente + " pasajeros. Pasajeros actuales: " + cantPasajeros);
 			try {
 				subirse.signalAll();
 				arrancar.await();
@@ -51,7 +53,7 @@ public class Transporte {
 
 	public void viajar() {
 		try {
-			Thread.sleep(100);
+			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -74,7 +76,7 @@ public class Transporte {
 		}
 		estaDestino = false;
 		
-		System.out.println(nombreTransporte + "  - Se bajaron todos. Vuelvo a la estacion");
+		System.out.println(nombreTransporte + "  - Se bajaron todos. Vuelvo al inicio");
 		lock.unlock();
 	}
 
