@@ -72,18 +72,6 @@ import java.util.logging.Logger;
     
     public void intentoTirarTobogan(Visitante unVisit)
     {
-        /*!!!!!!Tengo problemas con esto. Si un visitante quiere tirarse, tengo que verificar que sea el primero. Si no lo es
-        tiene que esperar, el tema es que la unica forma que conozco es con el metodo wait, o sea monitores
-        */
-        
-        //Verifico que el visitante que se quiere tirar sea el primero en la fila
-        //Verifico en un metodo afuera para evitar hacer el synchronized con el Thread.sleep() de tirarseTobogan
-        //System.out.println(unVisit.getNombreCompleto() + " FARO - Soy el primero para tirarme?");
-        //verificarTobogan(unVisit);
-        
-        //Se tira por el tobogan
-        //!!NOTA - Yo puse un el metodo Thread.Sleep() aca dentro. Cuando va a este metodo, sigue el syncronized? mas que nada por el tema que no haga un Sleep mientras esta sincronizado
-        subirEscalera.release();
         
         if(unReloj.getHoraActual() > 9 && unReloj.getHoraActual() < 18)
         {
@@ -91,32 +79,11 @@ import java.util.logging.Logger;
         	tirarseTobogan(unVisit);
         }else {
         	System.out.println(unVisit.getNombreCompleto() + " - Me hecharon del tobogan");
+        	subirEscalera.release();
         }
         
     }
 
-    private synchronized void verificarTobogan(Visitante unVisit){
-    	/**
-    	 * OBSOLETO. Lo que haciamos antes era poner una LinkedList en donde se iban agregando los que se subian a la escalera, pero es horrible
-    	 * que cada visitante tenga que ver si es su turno de tirarse, asi que lo remplazamos con un semaforo
-    	 */
-    	
-    	/*
-            while(!(escalera.getFirst() != null && escalera.getFirst() == unVisit))
-        {
-            //Si no es el primero, espera.
-            try{
-             //   System.out.println(unVisit.getNombre() + " FARO - No es mi turno de tirarme. Me voy a dormir");
-                //Notifico a otro que vea si el puede tirarse
-                this.notifyAll();
-                //Pongo a dormir este thread
-                this.wait();
-            } catch (InterruptedException ex) {
-                Logger.getLogger(FaroMirador.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        */
-    }
     
     private void tirarseTobogan(Visitante unVisit)
     {
@@ -126,9 +93,10 @@ import java.util.logging.Logger;
             System.out.println(unVisit.getNombreCompleto() + " FARO - Intento obtener el semaforo del tobogan");
             
             toboganes.acquire();
+            subirEscalera.release();
             
             System.out.println(unVisit.getNombreCompleto() + " FARO - Obtuve el semaforo del tobogan, me tiro");
-            Thread.sleep(100);
+            Thread.sleep(800);
         } catch (InterruptedException ex) {
             Logger.getLogger(FaroMirador.class.getName()).log(Level.SEVERE, null, ex);
         }
