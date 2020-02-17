@@ -116,5 +116,10 @@ public class Transporte {
 		}
 		lock.unlock();
 	}
+	
+	public String getNombre()
+	{
+		return this.nombreTransporte;
+	}
 
 }

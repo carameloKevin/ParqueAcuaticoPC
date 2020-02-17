@@ -11,38 +11,42 @@ public class Gomon extends Transporte {
 	CyclicBarrier laBarrera;
 	AtomicInteger laPos;
 	int posicionFinal = -1;
+	boolean estaListo = false;
+	CarreraGomones laBaseGomones;
+	Carrera carreraParticipa;
 	
-	public Gomon(String nro, int cantAsientosLibres, int cantMinimaGente, CyclicBarrier unaBarrera, AtomicInteger unaPos)
+	public Gomon(String nro, int cantAsientosLibres, int cantMinimaGente, CarreraGomones baseGomones)
 	{
 		super(nro, cantAsientosLibres, cantMinimaGente);
-		laBarrera = unaBarrera;
-		laPos = unaPos;
+		laBaseGomones = baseGomones;
 	}
 	
 	public void esperarSubidaPasajeros()
 	{
 		super.esperarSubidaPasajeros();
-		
-			try {
-				laBarrera.await(1000, TimeUnit.MILLISECONDS);
-				System.out.println(this.nombreTransporte + " - Salio en la carrera!");
-			} catch (TimeoutException e) {
-				System.out.println(this.nombreTransporte + " - Se canso de esperar y salio en su propia carrera!");
-				e.printStackTrace();
-			}
-			catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			} catch (BrokenBarrierException e) {
-			
-			e.printStackTrace();
-		}
+		estaListo = true;
+		laBaseGomones.ponerEnSalidaGomon(this);
 	}
 	
 	public void viajar()
 	{
 		super.viajar();
-		posicionFinal = laPos.addAndGet(1);
+		posicionFinal = carreraParticipa.getPosicion();
 		System.out.println(this.nombreTransporte + " - Llego en " + posicionFinal);
+	}
+	
+	public void setEstaListo(boolean estado)
+	{
+		this.estaListo = false;
+	}
+	
+	public boolean getEstaListo()
+	{
+		return estaListo;
+	}
+	
+	public void setCarreraParticipa(Carrera unaCarrera)
+	{
+		carreraParticipa = unaCarrera;
 	}
 }
