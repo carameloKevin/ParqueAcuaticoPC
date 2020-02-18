@@ -8,6 +8,7 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -35,28 +36,31 @@ public class NadoDelfines {
 	private final int CANT_ESPACIO_PILETA = 10; // cantidad gente que entra en una pileta
 	private final int MINIMA_GENTE_EMPEZAR = 4;//CANT_ESPACIO_PILETA * (CANT_PILETAS - 1);
 
+	private int ultimoShow = -1;
 	private int cantHorarios = 0;
 	private int[] horariosNados;
-	private CountDownLatch barreraMinGente = new CountDownLatch(MINIMA_GENTE_EMPEZAR);
+	private CountDownLatch latchMinGente = new CountDownLatch(MINIMA_GENTE_EMPEZAR);
 	private Reloj reloj;
 	boolean showEstaSucediendo = false;
+	private AtomicInteger[] cantGenteAnotadaPorTurno;
 
-	LinkedBlockingQueue<Visitante>[] listaShow;
+	LinkedBlockingQueue<Visitante>[] listasShow;
 
 	public NadoDelfines(Reloj reloj, int[] horarios) {
 		this.reloj = reloj;
 		this.horariosNados = horarios;
 		this.cantHorarios = horarios.length;
+		this.cantGenteAnotadaPorTurno = new AtomicInteger[horarios.length];
 		System.out.println(horariosNados[0]);
 		inicializarListas();
 	}
 
 	public void inicializarListas() {
 		// Inicializo las listas de visitantes para cada show
-		listaShow = new LinkedBlockingQueue[cantHorarios];
+		listasShow = new LinkedBlockingQueue[cantHorarios];
 
 		for (int i = 0; i < cantHorarios; i++) {
-			listaShow[i] = new LinkedBlockingQueue<Visitante>(CANT_PILETAS * CANT_ESPACIO_PILETA);
+			listasShow[i] = new LinkedBlockingQueue<Visitante>(CANT_PILETAS * CANT_ESPACIO_PILETA);
 		}
 
 		// inicializo al encargado
@@ -75,7 +79,7 @@ public class NadoDelfines {
 		//System.out.println(unVisitante.getNombreCompleto() + " - INICIO NADODELFINES");
 
 		if (!unVisitante.tieneTurnoDelfines()) {
-			System.out.println(unVisitante.getNombreCompleto() + " - Me estoy yendo a anotar <--- INICIO 1 Nado Delfines");
+			System.out.println(unVisitante.getNombreCompleto() + " - Me estoy yendo a anotar <--- INICIO Nado Delfines");
 			boolean anotado = false;
 			// Lo intento anotar en el nado con delfines
 			int pos = 0;
@@ -88,7 +92,7 @@ public class NadoDelfines {
 			}
 			
 			while (pos < cantHorarios && !anotado) {
-				anotado = listaShow[pos].offer(unVisitante); // offer es como el add/put pero retorna true o false
+				anotado = listasShow[pos].offer(unVisitante); // offer es como el add/put pero retorna true o false
 															// dependiendo si pudo anadirlo
 				//Lo pone en la lista y se pasa uno
 				pos++;
@@ -100,6 +104,7 @@ public class NadoDelfines {
 			
 			if (anotado) {
 				unVisitante.setTurnoDelfines(pos);
+				unVisitante.setHoraDelfines(horariosNados[pos]);
 				// Este SOUT es mas para debug. Despues cambiarlo a "Se anoto exitosamente"
 				System.out.println(unVisitante.getNombreCompleto() + " - Se anoto en el turno " + pos);
 			}else {
@@ -109,13 +114,13 @@ public class NadoDelfines {
 			
 		} else {
 			// Vino porque lo llamaron o por su cuenta para ver si empezo el show
-			int horarioTurnoVisitante = horariosNados[unVisitante.getTurnoDelfines()];
+			int horarioTurnoVisitante = unVisitante.getHoraDelfines();
 			if (horarioTurnoVisitante == reloj.getHoraActual()
-					&& listaShow[unVisitante.getTurnoDelfines()].size() >= MINIMA_GENTE_EMPEZAR) {
+					&& listasShow[unVisitante.getTurnoDelfines()].size() >= MINIMA_GENTE_EMPEZAR) {
 				// Si es la hora de su nado, se mete
 				// Decrementa en uno la cantidad de gente que entro
 				System.out.println("BARRERAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaa");
-				this.barreraMinGente.countDown();
+				this.latchMinGente.countDown();
 
 				System.out.println(unVisitante.getNombreCompleto() + " - Entro al show");
 
@@ -123,6 +128,7 @@ public class NadoDelfines {
 				
 				
 				synchronized (this) {
+					System.out.println(unVisitante.getNombreCompleto() + " - Paso el synchronized");
 					while (showEstaSucediendo) {
 						cantIteraciones++;
 						try {
@@ -134,6 +140,9 @@ public class NadoDelfines {
 					}
 				}
 				
+				//Le cambio las variables para que no siga entrando a nadar
+				unVisitante.setTurnoDelfines(-1);
+				unVisitante.setHoraDelfines(-1);
 				System.out.println(unVisitante.getNombreCompleto() + " - Por fin se pudo ir del nado de delfines <------ FIN NadoDelfin");
 
 			} else {
@@ -143,7 +152,7 @@ public class NadoDelfines {
 					System.out.println(unVisitante.getNombreCompleto() + " - Se le paso su horario del show y se fue");
 
 					// Lo saco de la lista en la que estaba y despues le cambio el ticket
-					listaShow[unVisitante.getTurnoDelfines()].remove(unVisitante);
+					//listasShow[unVisitante.getTurnoDelfines()].remove(unVisitante);
 					unVisitante.setTurnoDelfines(-1);
 				}
 				else {
@@ -167,14 +176,18 @@ public class NadoDelfines {
 
 		// Esto siempre va a dar true, pero no esta de mas chequearlo
 		if (avisarGente) {
+			if (!listasShow[posicion].isEmpty())
+			{
+				System.out.println("NADO DELFIN - Visitantes encontrandos, avisandoles que vengan al show!");
+			}
+			
 			// Si es un horario, le avisa a la gente
-			while (!listaShow[posicion].isEmpty()) {
-				System.out.println("NADO DELFIN - Visitantes encontrandos, avisandoles de a uno!");
-				listaShow[posicion].poll().setIrAShowDelfines(true);
+			while (!listasShow[posicion].isEmpty()) {
+				//listasShow[posicion].poll().setIrAShowDelfines(true);
 			}
 		} else {
 			// Si no hay a quien avisar que espere una hora
-			System.out.println("ALGO SALIO MAL -----------------------------------------------------<<<<<<<");
+			System.out.println("ALGO SALIO MAL, NO DEBERIA LLEGAR ACA -----------------------------------------------------<<<<<<<");
 			reloj.esperarUnaHora();
 		}
 
@@ -182,37 +195,36 @@ public class NadoDelfines {
 
 	public void comenzarShow() {
 
-		while (!esHorarioShow()) {
+		while (reloj.getHoraActual() == horariosNados[ultimoShow] || !esHorarioShow()) {
 			// No hice un metodo que esperara hasta cierto horario porque me iba a quedar
-			// bastante igual
+			// bastante parecido
 			reloj.esperarUnaHora();
 		}
-
-		int horarioActual = reloj.getHoraActual();
-
-		// Creo una barrera para asegurarme que pasa la gente
-		this.barreraMinGente = new CountDownLatch(MINIMA_GENTE_EMPEZAR);
+		
+		// Creo un latch para asegurarme que pasa la gente
+		this.latchMinGente = new CountDownLatch(MINIMA_GENTE_EMPEZAR);
 
 		// Primero tiene que cambiar esta variable asi cuando la gente llega al show
 		// queda en el wait;
 		showEstaSucediendo = true;
-		avisarGente(horarioActual);
+		//avisarGente(horarioActual);
 
 		// espera un minimo y despues sale si no llegaron todos
 		try {
-			barreraMinGente.await(4000, TimeUnit.MILLISECONDS);
+			latchMinGente.await(4000, TimeUnit.MILLISECONDS);
 			System.out.println("NADO DELFINES - Empezando un show");
-			reloj.utilizarTiempoEvento();
+			reloj.esperarUnaHora();	//simulo el tiempo
 		} catch (InterruptedException e) {
 			// Estoy usando un catch como if, lo cual es horrible
 			System.out.println("NADO DELFINES - No llego la suficiente gente en tiempo y se cancelo el show");
 		}
+		
 		this.showEstaSucediendo = false;
 		System.out.println("NADO DELFINES - Termino el show");
+		
 		synchronized (this) {
 			notifyAll();
 		}
-
 	}
 
 	public boolean esHorarioShow() {
@@ -222,6 +234,12 @@ public class NadoDelfines {
 		while (!esHorario && posicion < cantHorarios) {
 			esHorario = horariosNados[posicion] == reloj.getHoraActual();
 			posicion++;
+		}
+		
+		if(esHorario)
+		{
+			//Guardo cual va a ser el show que va a arrancar
+			ultimoShow = posicion--;
 		}
 
 		return esHorario;
