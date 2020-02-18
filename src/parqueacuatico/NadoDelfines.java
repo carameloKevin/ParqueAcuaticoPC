@@ -1,211 +1,230 @@
 package parqueacuatico;
 
+import java.util.LinkedList;
 import java.util.Random;
 import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class NadoDelfines {
 
-	/*Nado  con  delfines (FOTOCOPIA):
-	 * para realizarla se  dispone  de  4  piletas.  Es  necesario que  el visitante elija
-	 *  un horario para realizar la actividad entre los horarios preestablecidos de
-	 *  la  misma.  Se  conforman  grupos  de  10  personas  por  pileta.
-	 *  En  cada  pileta nadaran dos delfines  y la actividad dura aproximadamente 45 minutos.
-	 *  La política del  parque  es  que  en  cada  horario  puede  haber  solo  1  grupo  incompleto
-	 *  (de  las  4 piletas)*/
 	/*
-	 * NADO CON DELFINELS (LO QUE HICE):
-	 * Hay una CANT_PILETAS, se van registrando los pasajeros en 
-	 * las piletas (siempre se llenan de la primera a la ultima)
-	 * y cuando hay CANT_PILETAS - 1 llenas, empieza el evento en
-	 * el proximo horario disponible. LOS VISITANTES SIEMPRE RESERVAN PARA
-	 * EL PROXIMO EVENTO, NO OTRO. El proximo evento empieza siempre y cuando
-	 * este las CANT_PILETAS - 1 llenas o si son las 17 (Para que termine antes de las 18)
+	 * Nado con delfines (FOTOCOPIA): para realizarla se dispone de 4 piletas. Es
+	 * necesario que el visitante elija un horario para realizar la actividad entre
+	 * los horarios preestablecidos de la misma. Se conforman grupos de 10 personas
+	 * por pileta. En cada pileta nadaran dos delfines y la actividad dura
+	 * aproximadamente 45 minutos. La política del parque es que en cada horario
+	 * puede haber solo 1 grupo incompleto (de las 4 piletas)
 	 */
-	
+	/*
+	 * NADO CON DELFINELS (LO QUE HICE): Hay una CANT_PILETAS, se van registrando
+	 * los pasajeros en las piletas (siempre se llenan de la primera a la ultima) y
+	 * cuando hay CANT_PILETAS - 1 llenas, empieza el evento en el proximo horario
+	 * disponible. LOS VISITANTES SIEMPRE RESERVAN PARA EL PROXIMO EVENTO, NO OTRO.
+	 * El proximo evento empieza siempre y cuando este las CANT_PILETAS - 1 llenas o
+	 * si son las 17 (Para que termine antes de las 18)
+	 */
+
 	private final int CANT_PILETAS = 4;
-	private final int CANT_ESPACIO_PILETA = 10; //cantidad gente que entra en una pileta
-	private final int MINIMA_GENTE_EMPEZAR = CANT_ESPACIO_PILETA * (CANT_PILETAS-1);
-	private int cantGenteRegistrada = 0;
+	private final int CANT_ESPACIO_PILETA = 10; // cantidad gente que entra en una pileta
+	private final int MINIMA_GENTE_EMPEZAR = 4;//CANT_ESPACIO_PILETA * (CANT_PILETAS - 1);
+
+	private int cantHorarios = 0;
+	private int[] horariosNados;
+	private CountDownLatch barreraMinGente = new CountDownLatch(MINIMA_GENTE_EMPEZAR);
 	private Reloj reloj;
-	boolean comenzoShow = false;
-	
-	Lock lock = new ReentrantLock();
-	Condition esperandoRegistrarse = lock.newCondition();
-	Condition esperandoGenteShow = lock.newCondition();
-	Condition esperandoHoraShow = lock.newCondition();
-	Condition salirDelShow = lock.newCondition();
-	
-	private Pileta[] piletas = new Pileta[CANT_PILETAS];
-	
-	public NadoDelfines(Reloj reloj)
-	{
+	boolean showEstaSucediendo = false;
+
+	LinkedBlockingQueue<Visitante>[] listaShow;
+
+	public NadoDelfines(Reloj reloj, int[] horarios) {
 		this.reloj = reloj;
-		inicializarPiletas();
+		this.horariosNados = horarios;
+		this.cantHorarios = horarios.length;
+		System.out.println(horariosNados[0]);
+		inicializarListas();
 	}
-	
-	public void inicializarPiletas()
-	{
-		for(int i = 0; i < CANT_PILETAS; i++)
-		{
-			piletas[i] = new Pileta(CANT_ESPACIO_PILETA, this);
-			(new Thread(piletas[i])).start();;
+
+	public void inicializarListas() {
+		// Inicializo las listas de visitantes para cada show
+		listaShow = new LinkedBlockingQueue[cantHorarios];
+
+		for (int i = 0; i < cantHorarios; i++) {
+			listaShow[i] = new LinkedBlockingQueue<Visitante>(CANT_PILETAS * CANT_ESPACIO_PILETA);
 		}
+
+		// inicializo al encargado
+		new Thread(new EncargadoPileta(this, reloj)).start();
 	}
-	
-	public void realizarNadoDelfines(Visitante unVisitante)
-	{
-		int pos = 0;
-		boolean reservoLugar = false;
-		
-		lock.lock();
-		//Reservar Lugar
-		System.out.println(unVisitante.getNombreCompleto() + " - Comenzo la actividad Nado con Delfines");
-		
-		if(comenzoShow)
-		{
-			System.out.println(unVisitante.getNombreCompleto() + " - El show estaba en progreso y no se unio. Espera a que termine");
-			//Si ya empezo el show, espera para registrarse
-			try {
-				esperandoRegistrarse.await();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		lock.unlock();
-		
-		//Intenta registrarse en alguna pileta
-		System.out.println(unVisitante.getNombreCompleto() + " - Intenta registrarse a una de las piletas");
-		while(!reservoLugar && pos < CANT_PILETAS)
-		{
+
+	public void realizarNadoDelfines(Visitante unVisitante) {
+		// voy a necesitar un encargado de los turnos
+		// Intento anotarlo en algun show. (hace 5 listas con 5 horarios y el usa el
+		// mismo numero para meterte en uno y en otro)
+		// Se anota en una lista y se va de este metodo.
+		// Cuando sea su turno, le aviso con un notify o le cambio una variable y hago
+		// que vuelva despues de su actividad actual
+		// Se mete a este mismo metodo, pero en vez de venir por aca, pasa derecho a su
+		// evento.
+		//System.out.println(unVisitante.getNombreCompleto() + " - INICIO NADODELFINES");
+
+		if (!unVisitante.tieneTurnoDelfines()) {
+			System.out.println(unVisitante.getNombreCompleto() + " - Me estoy yendo a anotar <--- INICIO 1 Nado Delfines");
+			boolean anotado = false;
+			// Lo intento anotar en el nado con delfines
+			int pos = 0;
+
 			
-			reservoLugar = piletas[pos].reservarLugar();
-			pos++;
-		}
-		
-		if(reservoLugar)
-		{
+			//Por como lo programe tengo que tener cuidado de no meterlo en una lista de un evento que ya paso
+			while(horariosNados[pos] < reloj.getHoraActual())
+			{
+				pos++;
+			}
+			
+			while (pos < cantHorarios && !anotado) {
+				anotado = listaShow[pos].offer(unVisitante); // offer es como el add/put pero retorna true o false
+															// dependiendo si pudo anadirlo
+				//Lo pone en la lista y se pasa uno
+				pos++;
+
+			}
+			
+			//vuelvo uno para atras;
 			pos--;
-			lock.lock();
-			cantGenteRegistrada++;
-			System.out.println(unVisitante.getNombreCompleto() + " Se registro bien");
-			//Si pudo registrarse, intenta meterse a alguna pileta
 			
-			if(cantGenteRegistrada < MINIMA_GENTE_EMPEZAR && reloj.getHoraActual() < 17)	//Primero se fija que haya gente suficiente
-			{
-				System.out.println(unVisitante.getNombreCompleto() + " - Falta gente para que empiece el Show asi que espera un rato");
-				try {
-					esperandoGenteShow.await();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+			if (anotado) {
+				unVisitante.setTurnoDelfines(pos);
+				// Este SOUT es mas para debug. Despues cambiarlo a "Se anoto exitosamente"
+				System.out.println(unVisitante.getNombreCompleto() + " - Se anoto en el turno " + pos);
 			}else {
-				System.out.println(unVisitante.getNombreCompleto() + " - Justo era el ultimo que hacia falta para empezar");
-				esperandoGenteShow.signalAll();
+				// Si no se pudo anotar, se va no mas
+				System.out.println(unVisitante.getNombreCompleto() + " - No se pudo anotar. Se retiro");
 			}
 			
-			if(!comenzoShow)	//Comenzo show va a cambiar cuando sea la hora para comenzar el show
-			{
-				System.out.println(unVisitante.getNombreCompleto() + " - Esperando que sea la hora para arrancar");
-				try {
-					esperandoHoraShow.await();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			
-			//Comienza el show en otra cosa, el visitante no hace ningun Thread.sleep ni nada, solo pasa de aca a querer salir
-			System.out.println(unVisitante.getNombreCompleto() + " - Recien empieza el show de delfines y ya se quiere ir. Esta esperando que termine para irse");
-			//Salir del show
-			try {
-				salirDelShow.await();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}finally
-			{
-				System.out.println(unVisitante.getNombreCompleto() + " Termino la actividad de nado con delfines");
-				cantGenteRegistrada--;
-				lock.unlock();
-			}
+		} else {
+			// Vino porque lo llamaron o por su cuenta para ver si empezo el show
+			int horarioTurnoVisitante = horariosNados[unVisitante.getTurnoDelfines()];
+			if (horarioTurnoVisitante == reloj.getHoraActual()
+					&& listaShow[unVisitante.getTurnoDelfines()].size() >= MINIMA_GENTE_EMPEZAR) {
+				// Si es la hora de su nado, se mete
+				// Decrementa en uno la cantidad de gente que entro
+				System.out.println("BARRERAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaa");
+				this.barreraMinGente.countDown();
 
-		}else{
-			System.out.println(unVisitante.getNombreCompleto() + " - No se pudo registrar y se va triste <----------------");
+				System.out.println(unVisitante.getNombreCompleto() + " - Entro al show");
+
+				int cantIteraciones = 0;
+				
+				
+				synchronized (this) {
+					while (showEstaSucediendo) {
+						cantIteraciones++;
+						try {
+							wait();
+							System.out
+									.println(unVisitante.getNombreCompleto() + " - Me quiero ir del nado de delfines " + cantIteraciones);
+						} catch (InterruptedException e) {
+						}
+					}
+				}
+				
+				System.out.println(unVisitante.getNombreCompleto() + " - Por fin se pudo ir del nado de delfines <------ FIN NadoDelfin");
+
+			} else {
+				if (horarioTurnoVisitante < reloj.getHoraActual()) {
+					//Si no hay un minimo de gente y pasa de largo en if de arriba, va a pasar una hora y va a entrar aca y se va a ir.
+					
+					System.out.println(unVisitante.getNombreCompleto() + " - Se le paso su horario del show y se fue");
+
+					// Lo saco de la lista en la que estaba y despues le cambio el ticket
+					listaShow[unVisitante.getTurnoDelfines()].remove(unVisitante);
+					unVisitante.setTurnoDelfines(-1);
+				}
+				else {
+				// Si no, es va
+				//System.out.println(unVisitante.getNombreCompleto() + " - Se fue porque no era su turno de delfines");
+				}	
+			}
 		}
 	}
 
-	public void abrirRegistros() {
-		//Todos los que estan esperando para anotarse los suelta
-		lock.lock();
-		System.out.println("PILETA - se abrieron los registros para el proximo show");
-		esperandoRegistrarse.signalAll();
-		lock.unlock();
-		
+	public void avisarGente(int unHorario) {
+		// Este metodo esta pensado para que tenga un while true afuera
+		boolean avisarGente = false;
+		int posicion = -1;
+
+		System.out.println("NADO DELFIN - Buscando visitantes...");
+		while (!avisarGente && posicion < this.cantHorarios) {
+			posicion++;
+			avisarGente = horariosNados[posicion] == unHorario;
+		}
+
+		// Esto siempre va a dar true, pero no esta de mas chequearlo
+		if (avisarGente) {
+			// Si es un horario, le avisa a la gente
+			while (!listaShow[posicion].isEmpty()) {
+				System.out.println("NADO DELFIN - Visitantes encontrandos, avisandoles de a uno!");
+				listaShow[posicion].poll().setIrAShowDelfines(true);
+			}
+		} else {
+			// Si no hay a quien avisar que espere una hora
+			System.out.println("ALGO SALIO MAL -----------------------------------------------------<<<<<<<");
+			reloj.esperarUnaHora();
+		}
+
 	}
 
 	public void comenzarShow() {
-		int horario = reloj.getHoraActual();
-		lock.lock();
-		System.out.println("PILETA - Esperando que se anoten");
-		
-		//La pileta tiene que empezar que haya el minimo de gente, si no no puede comenzar
-		while(cantGenteRegistrada < MINIMA_GENTE_EMPEZAR && horario != 17)
-		{
-			lock.unlock();
-			horario = reloj.esperarUnaHora();
-			lock.lock();
-		}
-		
-		
-		
-		/*
-		if(cantGenteRegistrada < MINIMA_GENTE_EMPEZAR && horario < 17);
-		{
-			try {
-				esperandoGenteShow.await();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		*/
-		esperandoGenteShow.signalAll();
-		horario = reloj.getHoraActual();
-		//Espera el horario del siguiente show
-		//El horario < 17 es para que si llegan a esa las 17, arranquen el show si o si
-		while((horario != 10 && horario != 12 && horario != 14 && horario != 16) && horario < 17) //Debe ver una mejor forma con un arreglo, pero por ahora sirve
-		{
-			System.out.println("PILETA - Esperando una hora mas para empezar el show");
-			horario = reloj.esperarUnaHora();
-			System.out.println(horario);
-		}
-		
-		comenzoShow = true;
-		esperandoHoraShow.signalAll();
-		
-		System.out.println("PILETA - Una de las piletas comenzo");
-		lock.unlock();
-		
 
-		reloj.utilizarTiempoEvento();
-		
+		while (!esHorarioShow()) {
+			// No hice un metodo que esperara hasta cierto horario porque me iba a quedar
+			// bastante igual
+			reloj.esperarUnaHora();
 		}
 
-	public void terminarShow() {
-		lock.lock();
-		System.out.println("PILETA - Ya se pueden ir los visitantes");
-		salirDelShow.signalAll();
-		comenzoShow = false;
-		lock.unlock();
+		int horarioActual = reloj.getHoraActual();
+
+		// Creo una barrera para asegurarme que pasa la gente
+		this.barreraMinGente = new CountDownLatch(MINIMA_GENTE_EMPEZAR);
+
+		// Primero tiene que cambiar esta variable asi cuando la gente llega al show
+		// queda en el wait;
+		showEstaSucediendo = true;
+		avisarGente(horarioActual);
+
+		// espera un minimo y despues sale si no llegaron todos
+		try {
+			barreraMinGente.await(4000, TimeUnit.MILLISECONDS);
+			System.out.println("NADO DELFINES - Empezando un show");
+			reloj.utilizarTiempoEvento();
+		} catch (InterruptedException e) {
+			// Estoy usando un catch como if, lo cual es horrible
+			System.out.println("NADO DELFINES - No llego la suficiente gente en tiempo y se cancelo el show");
+		}
+		this.showEstaSucediendo = false;
+		System.out.println("NADO DELFINES - Termino el show");
+		synchronized (this) {
+			notifyAll();
+		}
+
 	}
-	
-	
-	
+
+	public boolean esHorarioShow() {
+		int posicion = 0;
+		boolean esHorario = false;
+
+		while (!esHorario && posicion < cantHorarios) {
+			esHorario = horariosNados[posicion] == reloj.getHoraActual();
+			posicion++;
+		}
+
+		return esHorario;
+	}
+
 }

@@ -26,7 +26,7 @@ public class main {
         
         
         //Horarios de salida de los colectivos
-        int[] horarios = {10, 11, 12, 14, 16};
+        int[] horarios = {10 ,11, 12, 14, 16};
         
         //Inicializo los colectivos
         for(int i = 0; i < cantColectivos; i++)

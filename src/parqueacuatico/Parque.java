@@ -34,7 +34,9 @@ public class Parque {
     	reloj = unReloj;
     	
     	//Lo inicialice aca porque no sabia bien si iba a funcionar si lo inicializa arriba con los otros
-    	nadoDelfines = new NadoDelfines(reloj);
+    	int[] horarios = {11, 13, 15, 17};
+    	
+    	nadoDelfines = new NadoDelfines(reloj, horarios);
     	elMundoAventura = new MundoAventura(reloj);
     	elFaroTobogan = new FaroMirador(reloj);
     	laCarreraGomones = new CarreraGomones(reloj);
@@ -95,9 +97,14 @@ public class Parque {
     }
 
 	public void realizarActividades(Visitante unVisitante) {
+		int numActividad;
 		while(estaAbierto())
 		{
-			int numActividad = 6;		//Debug
+			if(unVisitante.getIrShowDelfines())
+			{
+				numActividad = 2;
+			}
+			 numActividad = 2;		//Debug
 			//int numActividad = random.nextInt(7);
 			
 			switch(numActividad)
@@ -124,7 +131,7 @@ public class Parque {
 				realizarCarreraGomones(unVisitante);
 				break;
 			default: //No deberia pasar, pero bue¸siempre tiene que ver un default
-				System.out.println("Dio un paseo por el parque");
+				//System.out.println("Dio un paseo por el parque");
 				break;
 			}
 		}

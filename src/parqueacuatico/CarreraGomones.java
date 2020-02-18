@@ -97,7 +97,7 @@ class CarreraGomones {
 		// elGomon lo podria sacar y que lo guarde el visitante, pero no me gusto mucho
 		// la idea
 		synchronized (this) {
-
+			//Hay muchas variables que tienen que cuidar, por eso el synchronized this
 			if (vaEnDuo) {
 
 				elGomon = gomonesDuo[ultPosDuo];
@@ -115,9 +115,6 @@ class CarreraGomones {
 				estaParaSalirSolo[ultPosSolo] = true;
 				ultPosSolo = (ultPosSolo + 1) % cantGomonesSolo;
 			}
-			
-			//Despierto a alguien (preferentemente al encargado
-			notify();
 		}
 
 		// La carrera la hacen los gomones por su cuenta entre ellos, compartiendo la
