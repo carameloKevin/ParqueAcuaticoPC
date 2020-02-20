@@ -14,12 +14,12 @@ public class Visitante implements Runnable {
 	private Parque elParque;
 	private TransporteHora elColectivo;
 	private int llave, ultimoRestaurante, ticketsRestaurante, turnoDelfines;
-	private boolean tieneMochila, dejoMochila, tieneEquipoSnorkel, irShowDelfines;
+	private boolean tieneMochila, dejoMochila, tieneEquipoSnorkel, esPrimeroFila, estaEnCaja;
 	
 	
 	private Random random = new Random();
 	private int horaDelfines = -1;
-
+	
 	public Visitante(String nom, Parque ecopcs, TransporteHora unColectivo) {
 
 		ultimoRestaurante = -1;
@@ -31,7 +31,8 @@ public class Visitante implements Runnable {
 		tieneMochila = random.nextBoolean();
 		dejoMochila = false;
 		tieneEquipoSnorkel = false;
-		irShowDelfines = false;
+		esPrimeroFila = false;
+		this.estaEnCaja = false;
 		this.vaEnColectivo = true;//random.nextBoolean();
 		this.elColectivo = unColectivo;
 	}
@@ -160,6 +161,25 @@ public class Visitante implements Runnable {
 		return this.horaDelfines;
 	}
 	
+	public boolean getEsPrimeroFila()
+	{
+		return esPrimeroFila;
+	}
+	
+	public void setEsPrimeroFila(boolean valor)
+	{
+		esPrimeroFila = valor;
+	}
+	
+	public void setEstaEnCaja(boolean valor)
+	{
+		this.estaEnCaja = valor;
+	}
+	
+	public boolean getEstaEnCaja()
+	{
+		return this.estaEnCaja;
+	}
 	
 	
 	
