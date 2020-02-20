@@ -39,7 +39,7 @@ public class Parque {
     	nadoDelfines = new NadoDelfines(reloj, horarios);
     	elMundoAventura = new MundoAventura(reloj);
     	elFaroTobogan = new FaroMirador(reloj);
-    	laCarreraGomones = new CarreraGomones(reloj);
+    	laCarreraGomones = new CarreraGomones();
     	//Inicializo los asistntes y los ejecuto
     
     	for(int i = 0; i < asistentesSnorkel.length; i++)
@@ -105,7 +105,7 @@ public class Parque {
 				//El segundo caso es para que lleguen un rato antes, nada mas. Igual funciona si llegan a tiempoo;
 				numActividad = 2;
 			}
-			 //numActividad = 2;		//Debug
+			//numActividad = 6;		//Debug
 			numActividad = random.nextInt(7);
 			
 			switch(numActividad)
@@ -120,8 +120,8 @@ public class Parque {
 				realizarNadoDelfines(unVisitante);
 				break;
 			case 3: //Snorkel
-					realizarNadoSnorkel(unVisitante);
-					break;
+				realizarNadoSnorkel(unVisitante);
+				break;
 			case 4: 
 				realizarMundoAventura(unVisitante);
 				break;

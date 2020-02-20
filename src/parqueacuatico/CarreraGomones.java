@@ -21,7 +21,8 @@ class CarreraGomones {
 	private final int CANT_ESPACIO_CAMIONETA = 20;
 	private final int CANT_GOMONES = 5;
 	private final int CANT_MIN_ARRANCAR = 5;
-
+	
+	private int cantBicis = 10;
 	private int cantGomonesSolo = CANT_GOMONES;
 	private int cantGomonesDuo = CANT_GOMONES;
 	private int ultPosDuo = 0;
@@ -31,6 +32,7 @@ class CarreraGomones {
 	
 	private Carrera carreraAux = new Carrera(CANT_MIN_ARRANCAR);
 	private Camioneta camioneta;
+	private CamionetaBicis camionetaBicis;
 	private Transporte trencito;
 	private Gomon[] gomonesSolo = new Gomon[cantGomonesSolo];
 	private boolean[] estaParaSalirSolo = new boolean[cantGomonesSolo];
@@ -38,13 +40,10 @@ class CarreraGomones {
 	private boolean[] estaParaSalirDuo = new boolean[cantGomonesDuo];
 	//private Chofer[] instructoresGuias = new Chofer[cantGomonesSolo + cantGomonesDuo]; //Los inicialice con los gomones
 	private Chofer choferTrencito;
-	private Reloj elReloj;
-	private ReentrantLock lock = new ReentrantLock();
 	CyclicBarrier barrera = new CyclicBarrier(3);
 	AtomicInteger posicionGomonesCarrera = new AtomicInteger(0);
 
-	public CarreraGomones(Reloj unReloj) {
-		elReloj = unReloj;
+	public CarreraGomones() {
 		trencito = new Transporte("TREN 01", CANT_ASIENTOS_TREN);
 		choferTrencito = new Chofer("CHOFER_TREN 01", trencito);
 		(new Thread(choferTrencito)).start();
@@ -52,6 +51,8 @@ class CarreraGomones {
 		camioneta = new Camioneta("CAMIONETA 01", CANT_ESPACIO_CAMIONETA);
 		(new Thread(camioneta)).start();
 
+		camionetaBicis = new CamionetaBicis("CamionetaBicis 01", this);
+		(new Thread(camionetaBicis)).start();
 		inicializarGomones();
 	}
 
@@ -124,26 +125,29 @@ class CarreraGomones {
 	}
 
 	public void subirEnBici(Visitante unVisitante) {
-		/*
-		 * Una idea para trabajar con esto es intentar hacerlos Transporte (fijate que necesitan chofer)
-		 * y cuando llegan arriba se suben a otro transporte que arranca cuando llega a un limite de bicis
-		 * (basicamente tratar las bicis como gente)
-		 * Gente que se sube a bicis que se suben a un transporte
-		 * 
-		 * Otra mas sencilla es hacerlo tipo contador. Se resta cuando esta subiendo, se suma a otro contador cuando
-		 * llega a la cima, y de hay alguien lo tiene que bajar.... ??la camioneta??
-		 */
-		
-		
-		System.out.println(unVisitante.getNombreCompleto() + " - Se fue en bici");
-
-		try {
-			Thread.sleep(100);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		System.out.println(unVisitante.getNombreCompleto() + " - Esta por subir en bici");
+		synchronized(this)
+		{
+			while(cantBicis == 0)
+			{
+				System.out.println(unVisitante.getNombreCompleto() + " - No pudo salir porque no habia bicis");
+				try {
+					wait();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+			System.out.println(unVisitante.getNombreCompleto() + " - Empezo a subir en bici");
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 		}
-
-		System.out.println(unVisitante.getNombreCompleto() + " - Llego a la cima en bici");
 	}
 
 	public void subirEnTrencito(Visitante unVisitante) {
@@ -172,6 +176,13 @@ class CarreraGomones {
 		//podria haberle asignado la carrera al gomon y que el gomon llame a ese metodo
 			
 		
+		
+	}
+
+	public synchronized void devolverBicis(int cantidadBicis) {
+		System.out.println("CARRERAGOMONES - Devolvieron " + cantidadBicis + " bicis");
+		this.cantBicis += cantidadBicis;
+		notify();
 		
 	}
 
