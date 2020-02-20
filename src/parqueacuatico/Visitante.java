@@ -18,6 +18,7 @@ public class Visitante implements Runnable {
 	
 	
 	private Random random = new Random();
+	private int horaDelfines = -1;
 
 	public Visitante(String nom, Parque ecopcs, TransporteHora unColectivo) {
 
@@ -109,6 +110,9 @@ public class Visitante implements Runnable {
 		this.tieneEquipoSnorkel = valor;
 	}
 	
+	
+	//Restaurantes
+	
 	public int getCantTickets()
 	{
 		return this.ticketsRestaurante;
@@ -119,10 +123,18 @@ public class Visitante implements Runnable {
 		return this.ultimoRestaurante;
 	}
 	
+	public void setUltimoRestaurante(int numero)
+	{
+		if(numero > -1)
+		{
+			this.ticketsRestaurante--;
+			this.ultimoRestaurante = numero;
+		}else {
+			System.err.println("No se pudo modificar el numero de restaurante");
+		}
+	}
 	
-	
-	
-	
+	//NadoDelfines
 	public void setTurnoDelfines(int turno) {
 		turnoDelfines = turno;
 	}
@@ -135,31 +147,24 @@ public class Visitante implements Runnable {
 	{ 
 		return this.turnoDelfines >= 0;
 	}
+	
+	
+	
+	public void setHoraDelfines(int valor)
+	{
+		this.horaDelfines  = valor;
+	}
+	
+	public int getHoraDelfines()
+	{
+		return this.horaDelfines;
+	}
+	
+	
+	
+	
+	
 
-	public void setIrAShowDelfines(boolean valor) {
-		this.irShowDelfines = valor;
-	}
-	
-	public boolean getIrShowDelfines()
-	{
-		return this.irShowDelfines;
-	}
-	
-	
-	
-	
-	
-	
-	public void setUltimoRestaurante(int numero)
-	{
-		if(numero > -1)
-		{
-			this.ticketsRestaurante--;
-			this.ultimoRestaurante = numero;
-		}else {
-			System.err.println("No se pudo modificar el numero de restaurante");
-		}
-	}
 
 
 

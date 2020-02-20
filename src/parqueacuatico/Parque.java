@@ -34,7 +34,7 @@ public class Parque {
     	reloj = unReloj;
     	
     	//Lo inicialice aca porque no sabia bien si iba a funcionar si lo inicializa arriba con los otros
-    	int[] horarios = {11, 13, 15, 17};
+    	int[] horarios = {11, 14, 16};
     	
     	nadoDelfines = new NadoDelfines(reloj, horarios);
     	elMundoAventura = new MundoAventura(reloj);
@@ -100,12 +100,13 @@ public class Parque {
 		int numActividad;
 		while(estaAbierto())
 		{
-			if(unVisitante.getIrShowDelfines())
+			if(unVisitante.getHoraDelfines() == reloj.getHoraActual() || unVisitante.getHoraDelfines() == reloj.getHoraActual()-1)
 			{
+				//El segundo caso es para que lleguen un rato antes, nada mas. Igual funciona si llegan a tiempoo;
 				numActividad = 2;
 			}
-			 numActividad = 2;		//Debug
-			//int numActividad = random.nextInt(7);
+			 //numActividad = 2;		//Debug
+			numActividad = random.nextInt(7);
 			
 			switch(numActividad)
 			{

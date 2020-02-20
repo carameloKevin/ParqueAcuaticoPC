@@ -20,9 +20,9 @@ public class TransporteHora extends Transporte {
 		lock.lock();
 		estaEstacion = true;
 		
+		System.out.println(nombreTransporte + "  - Espero a que se suba alguien. Pasajeros actuales: " + cantPasajeros);
 		//Chequeo que ya no haya salido en esta hora para que durante la hora de salida no salga y venga y salga y venga y salga y venga constantemente
-		while(ultimaSalida == elReloj.getHoraActual() || !esHoraSalir()) {
-			System.out.println(nombreTransporte + "  - Espero a que se suba alguien. Pasajeros actuales: " + cantPasajeros);
+		while(cantPasajeros == 0 || (ultimaSalida == elReloj.getHoraActual() || !esHoraSalir()) ) {
 			subirse.signalAll();
 			lock.unlock();
 			elReloj.esperarUnaHora();

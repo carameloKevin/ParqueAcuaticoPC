@@ -36,7 +36,7 @@ class CarreraGomones {
 	private boolean[] estaParaSalirSolo = new boolean[cantGomonesSolo];
 	private Gomon[] gomonesDuo = new Gomon[cantGomonesDuo];
 	private boolean[] estaParaSalirDuo = new boolean[cantGomonesDuo];
-	private Chofer[] instructoresGuias = new Chofer[cantGomonesSolo + cantGomonesDuo];
+	//private Chofer[] instructoresGuias = new Chofer[cantGomonesSolo + cantGomonesDuo]; //Los inicialice con los gomones
 	private Chofer choferTrencito;
 	private Reloj elReloj;
 	private ReentrantLock lock = new ReentrantLock();
