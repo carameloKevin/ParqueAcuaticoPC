@@ -32,7 +32,7 @@ public class CamionetaBicis implements Runnable{
 	}
 	
 	
-	private synchronized void subirBici()
+	public synchronized void subirBici()
 	{
 		while(!estaOrigen)
 		{

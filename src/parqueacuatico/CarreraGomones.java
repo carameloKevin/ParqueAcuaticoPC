@@ -72,6 +72,8 @@ class CarreraGomones {
 	}
 
 	public void realizarCarreraGomones(Visitante unVisitante) {
+		System.out.println(unVisitante.getNombreCompleto() + " - Llego a la base de gomones <-- INICIO Gomones");
+		
 		boolean subeEnBici = random.nextBoolean();
 		boolean vaEnDuo;
 		Gomon elGomon;
@@ -121,6 +123,7 @@ class CarreraGomones {
 		// La carrera la hacen los gomones por su cuenta entre ellos, compartiendo la
 		// cyclicbarrier.
 		elGomon.bajarPasajero(unVisitante);
+		System.out.println(unVisitante.getNombreCompleto() + " - Se esta yendo de la base de gomones <-- FIN Gomones");
 
 	}
 
@@ -138,7 +141,7 @@ class CarreraGomones {
 					e.printStackTrace();
 				}
 			}
-			
+		}
 			System.out.println(unVisitante.getNombreCompleto() + " - Empezo a subir en bici");
 			try {
 				Thread.sleep(1000);
@@ -147,7 +150,9 @@ class CarreraGomones {
 				e.printStackTrace();
 			}
 			
-		}
+		
+		camionetaBicis.subirBici();
+		System.out.println(unVisitante.getNombreCompleto() + " - Termino de subir hasta los gomones y dejo la bici");
 	}
 
 	public void subirEnTrencito(Visitante unVisitante) {

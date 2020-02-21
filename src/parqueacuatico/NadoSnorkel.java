@@ -35,7 +35,7 @@ class NadoSnorkel {
 		System.out.println(unAsistente.getNombreCompleto() + " - Estoy esperando para entregar un Snorkel");
 		
 		lock.lock();
-		//while(filaEspera.isEmpty() || cantEquiposDisponibles == 0) {
+		do{
 		
 		try {
 			entregarEquipo.await();
@@ -43,7 +43,7 @@ class NadoSnorkel {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-				
+		}while(cantEquiposDisponibles <= 0);		
 		
 		System.out.println(unAsistente.getNombreCompleto() + " - Estoy entregando un Snorkel a un visitante");
 		cantEquiposDisponibles --;
