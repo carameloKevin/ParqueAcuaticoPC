@@ -46,7 +46,7 @@ class CarreraGomones {
 
 	public CarreraGomones(Reloj unReloj) {
 		elReloj = unReloj;
-		trencito = new Transporte("TREN 01", CANT_ASIENTOS_TREN);
+		trencito = new Transporte("TREN 01", CANT_ASIENTOS_TREN, elReloj);
 		choferTrencito = new Chofer("CHOFER_TREN 01", trencito);
 		(new Thread(choferTrencito)).start();
 
@@ -171,18 +171,22 @@ class CarreraGomones {
 		// metodo llamado por el gomon
 		System.out.println(elGomon.getNombre() + " - Esta esperando para ponerse en la salida");
 		synchronized (this) {
+			if(elGomon.estaLleno())
+			{
 			if (carreraAux.getYaComenzo()) {
 
 				// Si la carrera ya comenzo, la descarto (sigue de fondo) y comienzo una nueva
 				carreraAux = new Carrera(CANT_MIN_ARRANCAR);
 				System.out.println("Generada otra carrera Nueva");
 			}
-		}
+		
 
 		// tiene que soltar el Lock antes de entrar a este metodo porque si no se va a
 		// quedar con el lock todo el rato
 		carreraAux.agregarGomonASalida(elGomon);
-
+			}
+		}
+		System.out.println(elGomon.getNombre() + " - No estaba lleno, asi que no salio en la carrera");
 		// podria haberle asignado la carrera al gomon y que el gomon llame a ese metodo
 
 	}

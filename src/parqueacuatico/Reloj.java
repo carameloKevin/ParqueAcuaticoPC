@@ -76,4 +76,12 @@ public class Reloj implements Runnable {
 		return horaActual;
 	}
 	
+	public boolean elParqueEstaAbierto()
+	{
+		/*
+		 * Cuidado que no toma en cuenta que a las 17 no pueden subirse mas a los juegos
+		 */
+		return (this.horaActual >= 9 && this.horaActual < 18);
+	}
+	
 }

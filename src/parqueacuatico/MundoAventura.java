@@ -19,9 +19,10 @@ public class MundoAventura {
 	 */
 
 	Semaphore filaCuerdas, filaTirolesa, filaSalto, tirolesaEste, tirolesaOeste, mutex;
+	Semaphore mutexEste, mutexOeste;
 	int esperandoEste = 0;
 	int esperandoOeste = 0;
-	boolean pasoUltOeste;
+	boolean pasoUltOeste, auxYaVistoEste, auxYaVistoOeste;
 	Random random = new Random();
 	int genteEste = 0, genteOeste = 0;
 	Reloj reloj;
@@ -34,7 +35,14 @@ public class MundoAventura {
 		this.tirolesaEste = new Semaphore(0);
 		this.tirolesaOeste = new Semaphore(1);
 		this.mutex = new Semaphore(1);
+		
+		this.mutexEste = new Semaphore(1);
+		this.mutexOeste = new Semaphore(1);
+		
 		reloj = elReloj;
+		
+		auxYaVistoEste = false;
+		auxYaVistoOeste = false;
 	}
 
 	public void realizarMundoAventura(Visitante unVisitante) {
@@ -70,7 +78,7 @@ public class MundoAventura {
 
 		try {
 			filaCuerdas.acquire();
-			if (reloj.getHoraActual() >= 9 && reloj.getHoraActual() < 17) {
+			if (reloj.getHoraActual() >= 9 && reloj.getHoraActual() < 18) {
 				System.out.println(unVisitante.getNombreCompleto() + " - Esta haciendo las cuerdas en Mundo Aventura");
 				Thread.sleep(1000);
 			} else {
@@ -108,7 +116,7 @@ public class MundoAventura {
 
 	private void tirarseLadoOeste(Visitante unVisitante) {
 		boolean pudoTirarse = false;
-
+		
 		try {
 			mutex.acquire();
 
@@ -128,36 +136,34 @@ public class MundoAventura {
 		mutex.release();
 
 		try {
+			System.out.println(unVisitante.getNombreCompleto() + " - Se esta queriendo tirar por la tirolesa");
 			tirolesaOeste.acquire();
-			//if para verificar que no se haya pasado de su hora
-			if (reloj.getHoraActual() >= 9 && reloj.getHoraActual() < 18) {
-				
 				System.out.println(unVisitante.getNombreCompleto() + " Se esta tirando por OESTE -> ESTE");
 				Thread.sleep(1000);
 				System.out.println(unVisitante.getNombreCompleto() + " Termine de pasar");
 				tirolesaEste.release();
-				pudoTirarse = true;
-			} else {
-				tirolesaOeste.release();
-				System.out
-						.println(unVisitante.getNombreCompleto() + " - No se pudo tirar por el lado OESTE por la hora");
-			}
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 		try {
 			mutex.acquire();
-			if (pudoTirarse) {
-				pasoUltOeste = true;
-			}
+			
+			pasoUltOeste = true;
 			esperandoOeste--;
+
+		
+		if (esperandoOeste > 0 && esperandoEste == 0) {
+			System.out.println(unVisitante.getNombreCompleto()
+					+ " - No hay nadie del lado ESTE pero si del OESTE, por lo tanto devuelvo la tirolesa");
+			tirolesaOeste.release();
+			tirolesaEste.acquire();
+			pasoUltOeste = false;
+		}
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 		mutex.release();
 	}
 
@@ -183,18 +189,12 @@ public class MundoAventura {
 		mutex.release();
 
 		try {
+			System.out.println(unVisitante.getNombreCompleto() + " - Se esta queriendo tirar por la tirolesa");
 			tirolesaEste.acquire();
-			if (reloj.getHoraActual() >= 9 && reloj.getHoraActual() < 18) {
 				System.out.println(unVisitante.getNombreCompleto() + " Se esta tirando por ESTE -> OESTE");
 				Thread.sleep(1000);
 				System.out.println(unVisitante.getNombreCompleto() + " Termine de pasar");
 				tirolesaOeste.release();
-				pudoTirarse = true;
-			} else {
-				tirolesaEste.release();
-				System.out
-						.println(unVisitante.getNombreCompleto() + " - No se pudo tirar por el lado ESTE por la hora");
-			}
 
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -202,12 +202,18 @@ public class MundoAventura {
 		}
 
 		try {
-
 			mutex.acquire();
-			if (pudoTirarse) {
-				pasoUltOeste = false;
-			}
+			pasoUltOeste = false;
 			esperandoEste--;
+
+		
+		if (esperandoEste > 0 && esperandoOeste == 0) {
+			System.out.println(unVisitante.getNombreCompleto()
+					+ " - No hay nadie del lado OESTE pero si del ESTE, por lo tanto devuelvo la tirolesa");
+			tirolesaEste.release();
+			tirolesaOeste.acquire();
+			pasoUltOeste = true;
+		}
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -49,4 +49,9 @@ public class Gomon extends Transporte {
 	{
 		carreraParticipa = unaCarrera;
 	}
+	
+	public boolean estaLleno()
+	{
+		return (this.cantPasajeros == this.cantMinimaGente);
+	}
 }
