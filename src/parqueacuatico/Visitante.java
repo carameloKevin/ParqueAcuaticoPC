@@ -28,7 +28,7 @@ public class Visitante implements Runnable {
 		this.nombre = nom;
 		this.elParque = ecopcs;
 		elReloj = ecopcs.getReloj();
-		tieneMochila = true;//random.nextBoolean();
+		tieneMochila = random.nextBoolean();
 		dejoMochila = false;
 		tieneEquipoSnorkel = false;
 		esPrimeroFila = false;

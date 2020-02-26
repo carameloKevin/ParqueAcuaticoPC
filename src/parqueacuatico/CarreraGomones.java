@@ -37,7 +37,7 @@ class CarreraGomones {
 	private Gomon[] gomonesSolo = new Gomon[cantGomonesSolo];
 	private boolean[] estaParaSalirSolo = new boolean[cantGomonesSolo];
 	private Gomon[] gomonesDuo = new Gomon[cantGomonesDuo];
-	private boolean[] estaParaSalirDuo = new boolean[cantGomonesDuo];
+	//private boolean[] estaParaSalirDuo = new boolean[cantGomonesDuo];
 	// private Chofer[] instructoresGuias = new Chofer[cantGomonesSolo +
 	// cantGomonesDuo]; //Los inicialice con los gomones
 	private Chofer choferTrencito;
@@ -51,7 +51,6 @@ class CarreraGomones {
 		(new Thread(choferTrencito)).start();
 
 		camioneta = new Camioneta("CAMIONETA 01", CANT_ESPACIO_CAMIONETA, elReloj);
-
 		(new Thread(new ChoferCamioneta(camioneta))).start();
 
 		camionetaBicis = new CamionetaBicis("CamionetaBicis 01", this);
@@ -77,16 +76,15 @@ class CarreraGomones {
 	public void realizarCarreraGomones(Visitante unVisitante) {
 		System.out.println(unVisitante.getNombreCompleto() + " - Llego a la base de gomones <-- INICIO Gomones");
 
-		boolean subeEnBici = random.nextBoolean();
+		boolean subeEnBici = true;// = random.nextBoolean();
 		boolean vaEnDuo;
 		Gomon elGomon;
 
 		// Metodo para subir
 
-		/*
-		 * if (subeEnBici) { subirEnBici(unVisitante); } else {
-		 * subirEnTrencito(unVisitante); }
-		 */
+		
+		  if (subeEnBici) { subirEnBici(unVisitante); } else {
+		 subirEnTrencito(unVisitante); }
 
 		// Guarda bolso del visitante
 		if (unVisitante.getTieneMochila()) {
@@ -108,13 +106,10 @@ class CarreraGomones {
 			{
 				yaHabiaAlguienDuo = !yaHabiaAlguienDuo;
 				if (!yaHabiaAlguienDuo) {
-					System.out.println(unVisitante.getNombreCompleto()
-							+ "**************************************************" + ultPosDuo);
 					// estaParaSalirDuo[ultPosDuo] = true;
 					ultPosDuo = (ultPosDuo + 1) % cantGomonesDuo;
 				} else {
-					System.out.println(unVisitante.getNombreCompleto()
-							+ "******************************************************Par " + ultPosDuo);
+					
 				}
 				
 				elGomon = gomonesDuo[ultPosDuo];
@@ -195,7 +190,7 @@ class CarreraGomones {
 	public synchronized void devolverBicis(int cantidadBicis) {
 		System.out.println("CARRERAGOMONES - Devolvieron " + cantidadBicis + " bicis");
 		this.cantBicis += cantidadBicis;
-		notify();
+		notifyAll();
 
 	}
 

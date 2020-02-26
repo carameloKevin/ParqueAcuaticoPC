@@ -24,13 +24,12 @@ public class Camioneta{
 	public synchronized void guardarBolso(Visitante unVisitante)
 	{	
 		
-		System.out.println(unVisitante.getNombreCompleto() + " <<<<<<<<<<<<<");
 		//si no hay espacio, o no esta en el lugar, espero
 		System.out.println(unVisitante.getNombreCompleto() + " - Esperando que haya lugar o que vuelva la camioneta");
+		notify();
 		while(cantidadBolsosSubidos >= LIMITE || !estaOrigen)
 		{
 			try {
-			//	notify();
 				wait();
 			} catch (InterruptedException e) {
 
@@ -47,14 +46,12 @@ public class Camioneta{
 			cantidadBolsosSubidos++;
 			//INTENTO notificar al chofer
 			notifyAll();
-			System.out.println(unVisitante.getNombreCompleto() + " >>>>>>>>>>");
-	}
+			}
 
 	public synchronized void recuperarBolso(Visitante unVisitante)
 	{
-		System.out.println("=======================");
 		System.out.println(unVisitante.getNombreCompleto() + " - Esperando a la camioneta en la meta/final");
-		
+		notify();
 		while(!this.estaDestino)
 		{
 			try {
@@ -82,7 +79,6 @@ public class Camioneta{
 		//es 1 porque puede suceder que 1 persona se suba a uno Duo y no sale hasta que llegue
 		//otra persona
 		while(cantidadBolsosSubidos > 1){
-			System.out.println("-------------------- " +cantidadBolsosSubidos + " ----------------------------");
 			try {
 				wait();
 			} catch (InterruptedException e) {
@@ -105,10 +101,9 @@ public class Camioneta{
 	public synchronized void esperarEnOrigen() {
 		estaOrigen = true;
 		System.out.println("CAMIONETA - Esperando a que haya aunque sea " + CANT_MIN_BOLSOS +" bolso");
+		notifyAll();
 		while(cantidadBolsosSubidos < CANT_MIN_BOLSOS)
-		{
-			System.out.println("-----------------------////////////////");
-			notifyAll();
+		{	
 			try {
 				wait();
 			} catch (InterruptedException e) {

@@ -17,6 +17,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Carolina
  */
 class NadoSnorkel {
+	private int cantGenteFila = 0;
 	private int cantEquiposDisponibles = 10;
 	private Lock lock = new ReentrantLock(true); // para darle fairness
 	private Condition entregarEquipo = lock.newCondition();
@@ -36,7 +37,7 @@ class NadoSnorkel {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		}while(cantEquiposDisponibles <= 0);		
+		}while(cantEquiposDisponibles <= 0 || cantGenteFila == 0);		
 		
 		System.out.println(unAsistente.getNombreCompleto() + " - Estoy entregando un Snorkel a un visitante");
 		cantEquiposDisponibles --;
@@ -49,6 +50,7 @@ class NadoSnorkel {
 		
 		
 		lock.lock();
+		cantGenteFila++;
 		System.out.println(unVisitante.getNombreCompleto() + " - Ya se anoto a la lista de espera. Esperando recibir equipo");
 		entregarEquipo.signal();
 		try {
@@ -65,6 +67,7 @@ class NadoSnorkel {
 	public void devolverEquipo(Visitante unVisitante) {
 		lock.lock();
 		cantEquiposDisponibles ++;
+		cantGenteFila--;
 		System.out.println(unVisitante.getNombreCompleto() + " - Se esta retirando. Deja el equipo de snorkel");
 		System.out.println("EQUIPOS SNORKEL RESTANTES " + cantEquiposDisponibles);
 		entregarEquipo.signal();
@@ -72,7 +75,7 @@ class NadoSnorkel {
 	}
 
 	public void realizarNadoSnorkel(Visitante unVisitante) {
-		System.out.println(unVisitante.getNombreCompleto() + " - Llego al Stand de nado con snorkel, quiere un equipo");
+		System.out.println(unVisitante.getNombreCompleto() + " - Llego al Stand de nado con snorkel, quiere un equipo <-- INICIO Nado Snorkel");
 
 		solicitarEquipo(unVisitante);
 
@@ -88,7 +91,7 @@ class NadoSnorkel {
 
 		devolverEquipo(unVisitante);
 
-		System.out.println(unVisitante.getNombreCompleto() + " - ya devolvió el equipo. Fin Nado con Snorkel");
+		System.out.println(unVisitante.getNombreCompleto() + " - ya devolvió el equipo. <-- FIN Nado con Snorkel");
 
 	}
 }

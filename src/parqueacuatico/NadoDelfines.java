@@ -89,7 +89,7 @@ public class NadoDelfines {
 			
 			//Por como lo programe tengo que tener cuidado de no meterlo en una lista de un evento que ya paso
 			//Este while no decide en que horario entra, solo verifica que no se meta en uno que ya paso
-			while(horariosNados[pos] <= reloj.getHoraActual())
+			while(pos < cantHorarios && horariosNados[pos] <= reloj.getHoraActual())
 			{
 				//Supuse que los show vienen ordenados de mayor a menor
 				pos++;

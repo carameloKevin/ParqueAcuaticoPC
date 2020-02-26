@@ -54,11 +54,11 @@ public class Shop {
 
 		fila.add(unVisitante);	//Se pone en la fila
 
+		notify();
 			while (!unVisitante.getEsPrimeroFila()) {
 				System.out.println(unVisitante.getNombreCompleto() + " - Estoy esperando a ser atendido");
 				 //Le avisa a la cajera (puede pasar que le avise a otro visitante)
 				try {
-					notify();
 					wait();
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
@@ -77,6 +77,7 @@ public class Shop {
 			try {
 				
 				System.out.println(unVisitante.getNombreCompleto() + " - Todavia me estan atendiendo");
+				//notify();
 				wait();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -134,7 +135,7 @@ public class Shop {
 		aux = fila.poll();
 		aux.setEsPrimeroFila(true);
 		//lo intento despertar
-		notify();
+		notifyAll();
 		while(!aux.getEstaEnCaja())
 		{
 			System.out.println(unaCajera.getNombreCompleto() + " - Esperando que se acerque a la caja " + aux.getNombreCompleto());
@@ -159,7 +160,7 @@ public class Shop {
 		aux.setEstaEnCaja(false);
 		synchronized(this)
 		{
-			notify();
+			notifyAll();
 		}
 		System.out.println(unaCajera.getNombreCompleto() + " - Termino de atender al cliente " + aux.getNombreCompleto());
 	}
