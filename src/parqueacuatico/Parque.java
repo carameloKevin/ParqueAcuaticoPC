@@ -42,6 +42,10 @@ public class Parque {
     	laCarreraGomones = new CarreraGomones();
     	//Inicializo los asistntes y los ejecuto
     
+    	
+    	/*
+    	 * Esto tendria que ir adentro de snorkel
+    	 */
     	for(int i = 0; i < asistentesSnorkel.length; i++)
     	{
     		asistentesSnorkel[i] = new Asistente("" + i, actSnorkel);
@@ -105,8 +109,8 @@ public class Parque {
 				//El segundo caso es para que lleguen un rato antes, nada mas. Igual funciona si llegan a tiempoo;
 				numActividad = 2;
 			}
-			//numActividad = 6;		//Debug
-			numActividad = random.nextInt(7);
+			numActividad = 6;		//Debug
+			//numActividad = random.nextInt(7);
 			
 			switch(numActividad)
 			{
@@ -132,7 +136,7 @@ public class Parque {
 				realizarCarreraGomones(unVisitante);
 				break;
 			default: //No deberia pasar, pero bue¸siempre tiene que ver un default
-				//System.out.println("Dio un paseo por el parque");
+				System.out.println(unVisitante.getNombreCompleto() + "Dio un paseo por el parque");
 				break;
 			}
 		}

@@ -129,8 +129,9 @@ public class MundoAventura {
 
 		try {
 			tirolesaOeste.acquire();
+			//if para verificar que no se haya pasado de su hora
 			if (reloj.getHoraActual() >= 9 && reloj.getHoraActual() < 18) {
-
+				
 				System.out.println(unVisitante.getNombreCompleto() + " Se esta tirando por OESTE -> ESTE");
 				Thread.sleep(1000);
 				System.out.println(unVisitante.getNombreCompleto() + " Termine de pasar");

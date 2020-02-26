@@ -30,9 +30,10 @@ class Restaurante {
 	
 	public void comerRestaurante(Visitante unVisitante)
 	{
-		//Antes de usar este metodo se tiene que estar seguro que ya no comio aca, este metodo no se hace responsable de eso
+		//Antes de usar este metodo se tiene que estar seguro que ya no comio aca, esta clase no se hace responsable de eso
 		
 		//Verifico si ya comio antes o no, para definir si almuerza o merenda
+		//**Tambien lo podria haber hecho con los tickets**
 		if(unVisitante.getUltimoRestaurante() >= 0)
 		{
 			tipoComida = "MERENDAR";

@@ -31,43 +31,35 @@ import java.util.logging.Logger;
         
         //this.escalera = new SynchronousQueue<Visitante>(true); //true para que sea FIFO
         this.toboganes = new Semaphore(2,true);
-        this.subirEscalera = new Semaphore(1,true);
+        this.subirEscalera = new Semaphore(15,true);
         this.unReloj = elReloj;
     }
     
     public void realizarFaroMirador(Visitante unVisitante){
-		System.out.println(unVisitante.getNombreCompleto() + " - Va al faro");
-		subirEscalera(unVisitante);
-		System.out.println(unVisitante.getNombreCompleto() + " - Ya se subio a la escalera");
+		System.out.println(unVisitante.getNombreCompleto() + " - Va al faro <-- INICIO Faro Mirador");
+		if(subirEscalera(unVisitante))
+		{
+		System.out.println(unVisitante.getNombreCompleto() + " FARO - Ya se subio a la escalera");
 		intentoTirarTobogan(unVisitante);
-		System.out.println(unVisitante.getNombreCompleto() + " - Ya se tiro y termino");
-
-		System.out.println(unVisitante.getNombreCompleto() + " - Termino Faro Mirador");
+		}else {
+			System.out.println(unVisitante.getNombreCompleto() + " FARO - No se pudo subir a la escalera asi que se fue");
+		}
+		System.out.println(unVisitante.getNombreCompleto() + " - Termino Faro Mirador <-- FIN Faro Mirador");
     }
     
-    public void subirEscalera(Visitante unVisit)
+    public boolean subirEscalera(Visitante unVisit)
     {
     	
+    	boolean valor;
         //Se sube un visitante a la escalera del faro
         System.out.println(unVisit.getNombreCompleto() + " FARO - Visitate Nro " + unVisit.getNombreCompleto() +" INTENTA subir al faro");
         
-        try {
-            subirEscalera.acquire();
-        } catch (InterruptedException ex) {
-            Logger.getLogger(FaroMirador.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        System.out.println(unVisit.getNombreCompleto() + " DEBUG - FARO - Visitate Nro " + unVisit.getNombreCompleto() +" TOMO el semaforo exitosamente<-------Esclera");
-       
-        /*
-        try{
-            //Se sube a la escalera
-            escalera.add(unVisit);
-        }finally{
-            System.out.println(unVisit.getNombreCompleto() + " DEBUG - FARO - Visitante Nro " + unVisit.getNombreCompleto() + "  LOGRO subir y SOLTO el Lock exitosamente");
-            subirEscalera.release();
-        }
-        */
+        valor = subirEscalera.tryAcquire();
+           if(valor)
+           {
+        	   System.out.println(unVisit.getNombreCompleto() + " FARO - Se pudo subir exitosamente a la escalera");
+           }
+           return valor;
     }
     
     public void intentoTirarTobogan(Visitante unVisit)
@@ -78,7 +70,7 @@ import java.util.logging.Logger;
         	System.out.println(unVisit.getNombreCompleto() + " FARO - Es mi turno de tirarme!");
         	tirarseTobogan(unVisit);
         }else {
-        	System.out.println(unVisit.getNombreCompleto() + " - Me hecharon del tobogan");
+        	System.out.println(unVisit.getNombreCompleto() + " FARO - Me hecharon del tobogan");
         	subirEscalera.release();
         }
         

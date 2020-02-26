@@ -16,14 +16,15 @@ public class main {
         Parque elParque = new Parque(unReloj);
 
         int cantColectivos = 2;
-        //int cantVisitantes = (int) (Math.random() * 70) + 10; 
-        int cantVisitantes = 2;
+        
+        //Son 30 como minimo mas que nada para que el nado de delfines pueda llegar a suceder si o si.
+        //int cantVisitantes = (int) (Math.random() * 70) + 41; 
+        int cantVisitantes = 20;
         
         //Cargo Colectivos y colectiveros
         int cantAsientosColectivo = 25;
         TransporteHora[] colectivos   = new TransporteHora[cantColectivos];
         Thread[] colectiveros = new Thread[cantColectivos];
-        
         
         //Horarios de salida de los colectivos
         int[] horarios = {10 ,11, 12, 14, 16};

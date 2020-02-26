@@ -18,7 +18,7 @@ import java.util.logging.Logger;
 public class Shop {
 
 	private LinkedBlockingQueue<Visitante> fila = new LinkedBlockingQueue<Visitante>();
-	private int CANTCAJERAS = 1;
+	private int CANTCAJERAS = 5;
 
 	
 	public Shop()
@@ -52,14 +52,13 @@ public class Shop {
 	public synchronized void pagarCompra(Visitante unVisitante) {
 		System.out.println(unVisitante.getNombreCompleto() + " - Esta por empezar a hacer fila para comprar");
 
-		fila.offer(unVisitante);	//Se pone en la fila
+		fila.add(unVisitante);	//Se pone en la fila
 
 			while (!unVisitante.getEsPrimeroFila()) {
 				System.out.println(unVisitante.getNombreCompleto() + " - Estoy esperando a ser atendido");
-				
-				notify(); //Le avisa a la cajera (puede pasar que le avise a otro visitante)
-				
+				 //Le avisa a la cajera (puede pasar que le avise a otro visitante)
 				try {
+					notify();
 					wait();
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
@@ -71,6 +70,7 @@ public class Shop {
 			unVisitante.setEstaEnCaja(true);
 			System.out.println(unVisitante.getNombreCompleto() + " - Esta siendo atendido");
 		
+			//intenta notificar al cajero que cambio sus variables
 			notify();
 		while(unVisitante.getEstaEnCaja())
 		{
@@ -89,8 +89,12 @@ public class Shop {
 
 	public void realizarShop(Visitante unVisitante) {
 
+		System.out.println(unVisitante.getNombreCompleto() + " - Entro a una tienda <-- INICIO Shop");
+		
 		entrarAComprar(unVisitante);
 		pagarCompra(unVisitante);
+		
+		System.out.println(unVisitante.getNombreCompleto() + " - Salio de la tienda <-- FIN Shop");
 
 	}
 	
@@ -102,6 +106,12 @@ public class Shop {
 	 * INICIO METODOS CAJERA
 	 */
 	public void atenderCaja(Cajera unaCajera) {
+		/*
+		 * no hice tres metodos (uno antes de thread.sleep, otro para el thread.sleep y 
+		 * uno mas para despues de thread.sleep) porque necesitaba guardar al visitante
+		 * y no queria tener que asignarselo a la cajera
+		 */
+		
 		Visitante aux;
 		synchronized(this)
 		{
@@ -123,15 +133,12 @@ public class Shop {
 		//Lo saco y le aviso que es el primero
 		aux = fila.poll();
 		aux.setEsPrimeroFila(true);
-		
-		
-		//AtenderCaja
+		//lo intento despertar
 		notify();
 		while(!aux.getEstaEnCaja())
 		{
 			System.out.println(unaCajera.getNombreCompleto() + " - Esperando que se acerque a la caja " + aux.getNombreCompleto());
 			try {
-				
 				wait();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block

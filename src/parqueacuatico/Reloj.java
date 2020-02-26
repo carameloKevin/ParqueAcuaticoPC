@@ -8,7 +8,6 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Reloj implements Runnable {
 
 	private int horaActual;
-	private Object horario = new Object();
 	private Lock lock = new ReentrantLock();
 	private Condition dormir = lock.newCondition();
 	private Condition cierreParque = lock.newCondition();
@@ -27,7 +26,7 @@ public class Reloj implements Runnable {
 				} else {
 					horaActual++;
 				}
-				if(horaActual >= 9 && horaActual <= 17)
+				if(horaActual >= 9 && horaActual <= 18)
 				{
 					dormir.signalAll();
 				}else {
@@ -67,7 +66,7 @@ public class Reloj implements Runnable {
 		pero si se pasa de las 18, se despierta y sale*/
 		try {
 			lock.lock();
-			cierreParque.await(4000, TimeUnit.MILLISECONDS);
+			cierreParque.await(5000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}finally {

@@ -9,6 +9,7 @@ public class Camioneta implements Runnable{
 	
 	private String nombre = this.getClass().toString();
 	private int ultPos = 0;
+	private int cantidadBolsosSubidos = 0;
 	private boolean[] espacio;
 	private boolean estaOrigen, estaDestino;
 	
@@ -26,17 +27,17 @@ public class Camioneta implements Runnable{
 		estaDestino = false;
 	}
 	
-	public synchronized boolean guardarBolso(Visitante unVisitante)
+	public synchronized void guardarBolso(Visitante unVisitante)
 	{	
-		//hay espacio?
-		boolean res = ultPos < espacio.length;
 		
-		//si no hay, o no esta en el lugar, espero
-		while(!res && !estaOrigen)
+		System.out.println(unVisitante.getNombreCompleto() + " <<<<<<<<<<<<<");
+		//si no hay espacio, o no esta en el lugar, espero
+		System.out.println(unVisitante.getNombreCompleto() + " - Esperando que haya lugar o que vuelva la camioneta");
+		while(cantidadBolsosSubidos >= espacio.length || !estaOrigen)
 		{
-			System.out.println(unVisitante.getNombreCompleto() + " - Esperando que haya lugar o que vuelva la camioneta");
-			notify();
+			
 			try {
+				notify();
 				wait();
 			} catch (InterruptedException e) {
 
@@ -45,30 +46,27 @@ public class Camioneta implements Runnable{
 		}
 		
 		//si hay lugar
-		if(res)
-		{
 			//guardo la mochila
 			espacio[ultPos] = true;
 			//le digo que se guardo correctamente/ no es necesario
-			res = true;
 			//le doy la llave al visitante
 			unVisitante.dejarEquipamiento(ultPos);
 			//digo cuantas mochilas hay/ la ultima pos;
 			ultPos++;
+			cantidadBolsosSubidos++;
 			//INTENTO notificar al chofer
 			notify();
-		}
-		
-		return res;
+			System.out.println(unVisitante.getNombreCompleto() + " >>>>>>>>>>");
 	}
 
 	public synchronized void recuperarBolso(Visitante unVisitante)
 	{
 		System.out.println(unVisitante.getNombreCompleto() + " - Esperando a la camioneta en la meta/final");
+		
 		while(!this.estaDestino)
 		{
-			notify();
 			try {
+				System.out.println("Esperando camioneta");
 				wait();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -79,6 +77,8 @@ public class Camioneta implements Runnable{
 		espacio[unVisitante.getLlave()] = false;
 		unVisitante.recuperarBolso();
 		ultPos--;
+		cantidadBolsosSubidos--;
+		System.out.println(unVisitante.getNombreCompleto() + " - Pudo bajar su bolso de la camioneta");
 		notify();
 	}
 	
@@ -95,8 +95,9 @@ public class Camioneta implements Runnable{
 	private synchronized void esperarEnDestino() {
 		estaDestino = true;
 		System.out.println("CAMIONETA - Esperando que saquen todos los bolsos Si o Si");
-		while(ultPos > 0){
-			notify();
+		notifyAll();
+		while(cantidadBolsosSubidos > 0){
+			System.out.println("-------------------- " +cantidadBolsosSubidos + " ----------------------------");
 			try {
 				wait();
 			} catch (InterruptedException e) {
@@ -119,8 +120,9 @@ public class Camioneta implements Runnable{
 	private synchronized void esperarEnOrigen() {
 		estaOrigen = true;
 		System.out.println("CAMIONETA - Esperando a que haya aunque sea un bolso");
-		while(ultPos == 0)
+		while(cantidadBolsosSubidos == 0)
 		{
+			System.out.println("-----------------------////////////////");
 			notify();
 			try {
 				wait();

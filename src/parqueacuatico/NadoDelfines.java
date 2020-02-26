@@ -39,19 +39,12 @@ public class NadoDelfines {
 	 * aproximadamente 45 minutos. La política del parque es que en cada horario
 	 * puede haber solo 1 grupo incompleto (de las 4 piletas)
 	 */
-	/*
-	 * NADO CON DELFINELS (LO QUE HICE): Hay una CANT_PILETAS, se van registrando
-	 * los pasajeros en las piletas (siempre se llenan de la primera a la ultima) y
-	 * cuando hay CANT_PILETAS - 1 llenas, empieza el evento en el proximo horario
-	 * disponible. LOS VISITANTES SIEMPRE RESERVAN PARA EL PROXIMO EVENTO, NO OTRO.
-	 * El proximo evento empieza siempre y cuando este las CANT_PILETAS - 1 llenas o
-	 * si son las 17 (Para que termine antes de las 18)
-	 */
 
 	private final int CANT_PILETAS = 4;
 	private final int CANT_ESPACIO_PILETA = 10; // cantidad gente que entra en una pileta
 	private final int MINIMA_GENTE_EMPEZAR = 30;//CANT_ESPACIO_PILETA * (CANT_PILETAS - 1);
-
+	private final int MAXIMA_GENTE_PILETA = 40;
+	
 	private int ultimoShow = -1;
 	private int cantHorarios = 0;
 	private int[] horariosNados;
@@ -68,7 +61,6 @@ public class NadoDelfines {
 		this.cantGenteAnotadaPorTurno = new AtomicInteger[horarios.length];
 		new Thread(new EncargadoPileta(this, reloj)).start();
 		inicializarAtomicInteger();
-		System.out.println(horariosNados[0]);
 	}
 	
 	private void inicializarAtomicInteger() {
@@ -99,14 +91,24 @@ public class NadoDelfines {
 			//Este while no decide en que horario entra, solo verifica que no se meta en uno que ya paso
 			while(horariosNados[pos] <= reloj.getHoraActual())
 			{
+				//Supuse que los show vienen ordenados de mayor a menor
 				pos++;
 			}
 			
 			//Me fijo si lo puedo meter en alguno
-			while (pos < cantHorarios && this.cantGenteAnotadaPorTurno[pos].get() >= 40) {
+			while (pos < cantHorarios && this.cantGenteAnotadaPorTurno[pos].get() >= MAXIMA_GENTE_PILETA) {
+				//Si hay mas de 40 personas, paso al siguiente. Si todos los turnos estan llenos
+				//en el siguiente if no va a entrar y no va a modificar la variable del visitante
 				pos++;
 			}
 			
+			synchronized(this)
+			{
+				/*Esto esta sincronizado porque pueden llegar a meterse 2 o mas hilos
+				al if y incrementar en +1 ambos, lo cual en un caso muy particular
+				puede llegar a dejar la cant de gente anotada en 41 o mas. No es que este mal
+				si no que se pasa del limite de gente aceptada. Igual funciona si esta por arriba del limite
+				*/
 			if (pos < cantHorarios) {
 				unVisitante.setTurnoDelfines(pos);
 				unVisitante.setHoraDelfines(horariosNados[pos]);
@@ -116,6 +118,7 @@ public class NadoDelfines {
 			}else {
 				// Si no se pudo anotar, se va no mas
 				System.out.println(unVisitante.getNombreCompleto() + " - No se pudo anotar. Se retiro");
+			}
 			}
 			
 			
@@ -171,7 +174,7 @@ public class NadoDelfines {
 					System.out.println(unVisitante.getNombreCompleto() + " - Se le paso su horario del show y se fue. Puede haber sido que no habia gente suficiente para el show anterior tambien");
 
 					// Lo saco de la lista en la que estaba y despues le cambio el ticket
-					//listasShow[unVisitante.getTurnoDelfines()].remove(unVisitante);
+
 					this.cantGenteAnotadaPorTurno[unVisitante.getTurnoDelfines()].decrementAndGet();
 					unVisitante.setTurnoDelfines(-1);
 					unVisitante.setHoraDelfines(-1);
@@ -231,7 +234,7 @@ public class NadoDelfines {
 	}
 
 	public boolean esHorarioShow() {
-		int posicion = -1;
+		int posicion = -1;	//apenas entra al horario pasa a ser 0.
 		boolean esHorario = false;
 
 		while (!esHorario && posicion < cantHorarios-1) {

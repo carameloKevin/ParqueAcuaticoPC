@@ -21,13 +21,6 @@ class NadoSnorkel {
 	private Lock lock = new ReentrantLock(true); // para darle fairness
 	private Condition entregarEquipo = lock.newCondition();
 	private Condition agarrarEquipo = lock.newCondition();
-//	private Condition arrancar = lock.newCondition();	
-	
-	private boolean hayColaPorEquipo;
-
-	public NadoSnorkel() {
-		this.hayColaPorEquipo = false;
-	}
 	
 
 	public void entregarEquipo(Asistente unAsistente) {

@@ -79,15 +79,16 @@ class CarreraGomones {
 		Gomon elGomon;
 
 		// Metodo para subir
-		if (subeEnBici) {
+	
+		/*if (subeEnBici) {
 			subirEnBici(unVisitante);
 		} else {
 			subirEnTrencito(unVisitante);
-		}
+		}*/
 
 		// Guarda bolso del visitante
 		if (unVisitante.getTieneMochila()) {
-			System.out.println(unVisitante.getNombreCompleto() + " - Dejo la mochila en la camioneta");
+			System.out.println(unVisitante.getNombreCompleto() + " - Esta intentando dejar la mochila en la camioneta");
 			camioneta.guardarBolso(unVisitante);
 		}
 
@@ -98,31 +99,39 @@ class CarreraGomones {
 		// Este lock esta por elGomon, ultPosDuo/Solo y yaHabiaAlguienDuo. Lo necesito
 		// para cuidar esas variables
 		// elGomon lo podria sacar y que lo guarde el visitante, pero no me gusto mucho
-		// la idea
-		synchronized (this) {
+		// la ideas
 			//Hay muchas variables que tienen que cuidar, por eso el synchronized this
 			if (vaEnDuo) {
 
 				elGomon = gomonesDuo[ultPosDuo];
 				gomonesDuo[ultPosDuo].subirPasajero(unVisitante);
 
+				synchronized(this) {
 				yaHabiaAlguienDuo = !yaHabiaAlguienDuo;
 				if (!yaHabiaAlguienDuo) {
 					estaParaSalirDuo[ultPosDuo] = true;
 					ultPosDuo = (ultPosDuo + 1) % cantGomonesDuo;
 				}
+				}
 			} else {
 				elGomon = gomonesSolo[ultPosSolo];
 				gomonesSolo[ultPosSolo].subirPasajero(unVisitante);
 
+				synchronized(this)
+				{
 				estaParaSalirSolo[ultPosSolo] = true;
 				ultPosSolo = (ultPosSolo + 1) % cantGomonesSolo;
+				}
 			}
-		}
 
 		// La carrera la hacen los gomones por su cuenta entre ellos, compartiendo la
 		// cyclicbarrier.
 		elGomon.bajarPasajero(unVisitante);
+		
+		if(unVisitante.getDejoMochila())
+		{
+			camioneta.recuperarBolso(unVisitante);
+		}
 		System.out.println(unVisitante.getNombreCompleto() + " - Se esta yendo de la base de gomones <-- FIN Gomones");
 
 	}
