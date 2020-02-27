@@ -37,7 +37,7 @@ class CarreraGomones {
 	private Gomon[] gomonesSolo = new Gomon[cantGomonesSolo];
 	private boolean[] estaParaSalirSolo = new boolean[cantGomonesSolo];
 	private Gomon[] gomonesDuo = new Gomon[cantGomonesDuo];
-	//private boolean[] estaParaSalirDuo = new boolean[cantGomonesDuo];
+	// private boolean[] estaParaSalirDuo = new boolean[cantGomonesDuo];
 	// private Chofer[] instructoresGuias = new Chofer[cantGomonesSolo +
 	// cantGomonesDuo]; //Los inicialice con los gomones
 	private Chofer choferTrencito;
@@ -46,7 +46,7 @@ class CarreraGomones {
 
 	public CarreraGomones(Reloj unReloj) {
 		elReloj = unReloj;
-		trencito = new Transporte("TREN 01", CANT_ASIENTOS_TREN, elReloj);
+		trencito = new Transporte("TREN 01", CANT_ASIENTOS_TREN);
 		choferTrencito = new Chofer("CHOFER_TREN 01", trencito);
 		(new Thread(choferTrencito)).start();
 
@@ -63,13 +63,13 @@ class CarreraGomones {
 		// Podria haber inicializado los dos en el mismo for
 
 		for (int i = 0; i < cantGomonesSolo; i++) {
-			gomonesSolo[i] = new Gomon("GomonSolo" + i, 1, 1, this);
-			new Thread(new Chofer("INSTRUCTORGOMON 1" + i, gomonesSolo[i])).start();
+			gomonesSolo[i] = new Gomon("GomonSolo" + i, 1, 1, this, this.elReloj);
+			new Thread(new InstructorGomon("INSTRUCTORGOMON 1" + i, gomonesSolo[i], elReloj)).start();
 		}
 
 		for (int i = 0; i < cantGomonesDuo; i++) {
-			gomonesDuo[i] = new Gomon("GomonDuo" + i, 2, 2, this);
-			new Thread(new Chofer("INSTRUCTORGOMON 2" + i, gomonesDuo[i])).start();
+			gomonesDuo[i] = new Gomon("GomonDuo" + i, 2, 2, this, this.elReloj);
+			new Thread(new InstructorGomon("INSTRUCTORGOMON 2" + i, gomonesDuo[i], elReloj)).start();
 		}
 	}
 
@@ -82,40 +82,38 @@ class CarreraGomones {
 
 		// Metodo para subir
 
-		
-		  if (subeEnBici) { subirEnBici(unVisitante); } else {
-		 subirEnTrencito(unVisitante); }
+		if (subeEnBici) {
+			subirEnBici(unVisitante);
+		} else {
+			subirEnTrencito(unVisitante);
+		}
 
 		// Guarda bolso del visitante
 		if (unVisitante.getTieneMochila()) {
 			System.out.println(unVisitante.getNombreCompleto() + " - Esta intentando dejar la mochila en la camioneta");
 			camioneta.guardarBolso(unVisitante);
+			System.out.println(unVisitante.getNombreCompleto() + " --------------<<<<");
 		}
 
 		// Subida, carrera (adentro de gomones) y descenso de gomones
 
 		vaEnDuo = random.nextBoolean();
 
-		// Este lock esta por elGomon, ultPosDuo/Solo y yaHabiaAlguienDuo. Lo necesito
-		// para cuidar esas variables
 		// elGomon lo podria sacar y que lo guarde el visitante, pero no me gusto mucho
 		// la ideas
 		// Hay muchas variables que tienen que cuidar, por eso el synchronized this
 		if (vaEnDuo) {
-			synchronized(this)
-			{
+			synchronized (this) {
 				yaHabiaAlguienDuo = !yaHabiaAlguienDuo;
 				if (!yaHabiaAlguienDuo) {
 					// estaParaSalirDuo[ultPosDuo] = true;
 					ultPosDuo = (ultPosDuo + 1) % cantGomonesDuo;
 				} else {
-					
+
 				}
-				
+
 				elGomon = gomonesDuo[ultPosDuo];
 			}
-
-			
 
 		} else {
 			synchronized (this) {
@@ -124,10 +122,17 @@ class CarreraGomones {
 				elGomon = gomonesSolo[ultPosSolo];
 			}
 		}
+		
+		if(this.elReloj.getHoraActual() >= 9 && this.elReloj.getHoraActual() <= 18)
+		{
 		elGomon.subirPasajero(unVisitante);
 		// La carrera la hacen los gomones por su cuenta entre ellos, compartiendo la
 		// cyclicbarrier.
-		elGomon.bajarPasajero(unVisitante);
+		
+		if(!elGomon.bajarPasajeroGomon(unVisitante)) {
+			System.out.println(unVisitante.getNombreCompleto() + " - Su gomon no pudo salir porque no vino mas gente. Se esta yendo sin hacer la actividad :(");
+		}
+		}
 
 		if (unVisitante.getDejoMochila()) {
 			camioneta.recuperarBolso(unVisitante);
@@ -171,22 +176,19 @@ class CarreraGomones {
 		// metodo llamado por el gomon
 		System.out.println(elGomon.getNombre() + " - Esta esperando para ponerse en la salida");
 		synchronized (this) {
-			if(elGomon.estaLleno())
-			{
-			if (carreraAux.getYaComenzo()) {
+				if (carreraAux.getYaComenzo()) {
 
-				// Si la carrera ya comenzo, la descarto (sigue de fondo) y comienzo una nueva
-				carreraAux = new Carrera(CANT_MIN_ARRANCAR);
-				System.out.println("Generada otra carrera Nueva");
-			}
-		
+					// Si la carrera ya comenzo, la descarto (sigue de fondo) y comienzo una nueva
+					carreraAux = new Carrera(CANT_MIN_ARRANCAR);
+					System.out.println("Generada otra carrera Nueva");
+				}
 
-		// tiene que soltar el Lock antes de entrar a este metodo porque si no se va a
-		// quedar con el lock todo el rato
-		carreraAux.agregarGomonASalida(elGomon);
-			}
+				// tiene que soltar el Lock antes de entrar a este metodo porque si no se va a
+				// quedar con el lock todo el rato
 		}
-		System.out.println(elGomon.getNombre() + " - No estaba lleno, asi que no salio en la carrera");
+				carreraAux.agregarGomonASalida(elGomon);
+		
+		
 		// podria haberle asignado la carrera al gomon y que el gomon llame a ese metodo
 
 	}

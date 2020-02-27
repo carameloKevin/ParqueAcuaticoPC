@@ -9,7 +9,7 @@ public class TransporteHora extends Transporte {
 	
 	public TransporteHora(String nro, int cantAsientosLibres, Reloj unReloj, int[] horarios)
 	{
-		super(nro, cantAsientosLibres, unReloj);
+		super(nro, cantAsientosLibres);
 		this.horarios = horarios;
 		elReloj = unReloj;
 	}

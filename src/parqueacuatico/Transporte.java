@@ -15,14 +15,13 @@ public class Transporte {
 	protected Condition subirse = lock.newCondition();
 	protected Condition bajarse = lock.newCondition();
 	protected Condition arrancar = lock.newCondition();	
-	protected Reloj elReloj;
+
 	
-	public Transporte(String nro, int cantAsientosLibres, Reloj unReloj) {
+	public Transporte(String nro, int cantAsientosLibres) {
 		this.nombreTransporte=nro;
 		this.cantAsientos = cantAsientosLibres;
 		estaEstacion = false;
 		estaDestino = false;
-		elReloj = unReloj;
 	}
 	
 	public Transporte(String nro, int cantAsientosLibres, int cantMinimaGente) {
@@ -39,7 +38,7 @@ public class Transporte {
 		lock.lock();
 		estaEstacion = true;
 		
-		while(cantPasajeros < cantMinimaGente && this.elReloj.elParqueEstaAbierto()) {
+		while(cantPasajeros < cantMinimaGente) {
 			System.out.println(nombreTransporte + "  - Espero a que se suban " + cantMinimaGente + " pasajeros. Pasajeros actuales: " + cantPasajeros);
 			try {
 				subirse.signalAll();
@@ -87,7 +86,7 @@ public class Transporte {
 
 	public void subirPasajero(Visitante pasajero) {
 		lock.lock();
-		System.out.println(pasajero.getNombreCompleto() + " - Me estoy queriendo subir al transporte");
+		System.out.println(pasajero.getNombreCompleto() + " - Me estoy queriendo subir al transporte "+ this.getNombre());
 		while(!estaEstacion || cantPasajeros >= cantAsientos)
 		{
 			try {

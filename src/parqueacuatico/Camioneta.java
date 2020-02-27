@@ -78,7 +78,7 @@ public class Camioneta{
 		//Cant min bolsos es la gente minima para que empiece una carrera
 		//es 1 porque puede suceder que 1 persona se suba a uno Duo y no sale hasta que llegue
 		//otra persona
-		while(cantidadBolsosSubidos > 1 || (this.elReloj.getHoraActual() < 9 && this.elReloj.getHoraActual() >= 18)){
+		while(cantidadBolsosSubidos > 0 || (this.elReloj.getHoraActual() < 9 || this.elReloj.getHoraActual() >= 18)){
 			try {
 				wait();
 			} catch (InterruptedException e) {
@@ -102,7 +102,7 @@ public class Camioneta{
 		estaOrigen = true;
 		System.out.println("CAMIONETA - Esperando a que haya aunque sea " + CANT_MIN_BOLSOS +" bolso");
 		notifyAll();
-		while(cantidadBolsosSubidos < CANT_MIN_BOLSOS && this.elReloj.getHoraActual() > 9 && this.elReloj.getHoraActual() < 18)
+		while(cantidadBolsosSubidos < CANT_MIN_BOLSOS && (this.elReloj.getHoraActual() >= 8 && this.elReloj.getHoraActual() <= 18))
 		{	
 			try {
 				wait();
@@ -114,9 +114,5 @@ public class Camioneta{
 		System.out.println("CAMIONETA - Saliendo para abajo/el destino de los gomones");
 		estaOrigen = false;
 	}
-	
-
-
-	
 	
 }
