@@ -37,12 +37,8 @@ class CarreraGomones {
 	private Gomon[] gomonesSolo = new Gomon[cantGomonesSolo];
 	private boolean[] estaParaSalirSolo = new boolean[cantGomonesSolo];
 	private Gomon[] gomonesDuo = new Gomon[cantGomonesDuo];
-	// private boolean[] estaParaSalirDuo = new boolean[cantGomonesDuo];
-	// private Chofer[] instructoresGuias = new Chofer[cantGomonesSolo +
-	// cantGomonesDuo]; //Los inicialice con los gomones
+	
 	private Chofer choferTrencito;
-	CyclicBarrier barrera = new CyclicBarrier(3);
-	AtomicInteger posicionGomonesCarrera = new AtomicInteger(0);
 
 	public CarreraGomones(Reloj unReloj) {
 		elReloj = unReloj;
@@ -76,7 +72,7 @@ class CarreraGomones {
 	public void realizarCarreraGomones(Visitante unVisitante) {
 		System.out.println(unVisitante.getNombreCompleto() + " - Llego a la base de gomones <-- INICIO Gomones");
 
-		boolean subeEnBici = true;// = random.nextBoolean();
+		boolean subeEnBici = random.nextBoolean();
 		boolean vaEnDuo;
 		Gomon elGomon;
 
@@ -92,7 +88,6 @@ class CarreraGomones {
 		if (unVisitante.getTieneMochila()) {
 			System.out.println(unVisitante.getNombreCompleto() + " - Esta intentando dejar la mochila en la camioneta");
 			camioneta.guardarBolso(unVisitante);
-			System.out.println(unVisitante.getNombreCompleto() + " --------------<<<<");
 		}
 
 		// Subida, carrera (adentro de gomones) y descenso de gomones

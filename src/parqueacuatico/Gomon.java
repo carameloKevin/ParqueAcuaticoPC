@@ -120,8 +120,10 @@ public class Gomon extends Transporte {
 	public void subirPasajero(Visitante pasajero) {
 		lock.lock();
 		System.out.println(pasajero.getNombreCompleto() + " - Me estoy queriendo subir al transporte "+ this.getNombre());
+		
 		listaEspera++;
 		esperarGenteLista.signal();
+		
 		while((!estaEstacion || cantPasajeros >= cantAsientos) && this.elReloj.elParqueEstaAbierto())
 		{
 			try {
@@ -135,7 +137,7 @@ public class Gomon extends Transporte {
 		arrancar.signal();
 		lock.unlock();
 	}
-	
+
 	
 	public void viajar()
 	{
@@ -177,4 +179,5 @@ public class Gomon extends Transporte {
 	public boolean hayEspera() {
 		return listaEspera > 0;
 	}
+	
 }

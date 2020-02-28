@@ -8,7 +8,7 @@ public class Transporte {
 	
 	protected String nombreTransporte = this.getClass().toString();
 	protected int cantAsientos;
-	protected int cantPasajeros;
+	protected int cantPasajeros = 0;
 	protected int cantMinimaGente = 1;
 	protected boolean estaEstacion, estaDestino;
 	protected Lock lock = new ReentrantLock();
@@ -44,7 +44,7 @@ public class Transporte {
 				subirse.signalAll();
 				arrancar.await();
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				e.printStackTrace();	
 			}
 		}
 		
@@ -84,7 +84,7 @@ public class Transporte {
 		lock.unlock();
 	}
 
-	public void subirPasajero(Visitante pasajero) {
+	public void subirPasajero(Visitante pasajero) {	
 		lock.lock();
 		System.out.println(pasajero.getNombreCompleto() + " - Me estoy queriendo subir al transporte "+ this.getNombre());
 		while(!estaEstacion || cantPasajeros >= cantAsientos)

@@ -17,9 +17,9 @@ public class main {
 
         int cantColectivos = 2;
         
-        //Son 30 como minimo mas que nada para que el nado de delfines pueda llegar a suceder si o si.
-        //int cantVisitantes = (int) (Math.random() * 70) + 41; 
-        int cantVisitantes = 20;
+        //Son 30 como minimo mas que nada para que el nado de delfines pueda llegar a suceder en algun momento.
+        int cantVisitantes = (int) (Math.random() * 70) + 30; 
+        //int cantVisitantes = 20;
         
         //Cargo Colectivos y colectiveros
         int cantAsientosColectivo = 25;

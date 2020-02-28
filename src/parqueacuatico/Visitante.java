@@ -33,7 +33,7 @@ public class Visitante implements Runnable {
 		tieneEquipoSnorkel = false;
 		esPrimeroFila = false;
 		this.estaEnCaja = false;
-		this.vaEnColectivo = true;//random.nextBoolean();
+		this.vaEnColectivo = random.nextBoolean();
 		this.elColectivo = unColectivo;
 	}
 
@@ -62,6 +62,7 @@ public class Visitante implements Runnable {
 			//Reseteo el ultimo restaurante en el que comio
 			ultimoRestaurante = -1;
 			this.ticketsRestaurante = 2;
+			turnoDelfines = -1;
 		}
 	}
 

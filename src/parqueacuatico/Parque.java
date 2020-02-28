@@ -109,8 +109,8 @@ public class Parque {
 				//El segundo caso es para que lleguen un rato antes, nada mas. Igual funciona si llegan a tiempoo;
 				numActividad = 2;
 			}
-			numActividad = 6;		//Debug
-			//numActividad = random.nextInt(7);
+			//numActividad = 6;		//Debug
+			numActividad = random.nextInt(7);
 			
 			switch(numActividad)
 			{

@@ -31,7 +31,7 @@ public class Carrera {
 		System.out.println(unGomon.getNombre() + " - Llego al inicio de la carrera " + nombre);
 		unGomon.setCarreraParticipa(this);
 		try {
-			barrera.await(5000, TimeUnit.MILLISECONDS);
+			barrera.await(3000, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
