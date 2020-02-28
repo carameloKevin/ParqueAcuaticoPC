@@ -1,5 +1,6 @@
 package parqueacuatico;
 
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -7,6 +8,9 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Reloj implements Runnable {
 
+	private LinkedBlockingQueue<Gomon> listaGomones = new LinkedBlockingQueue<Gomon>();
+	private Camioneta camioneta;
+	
 	private int horaActual;
 	private Lock lock = new ReentrantLock();
 	private Condition dormir = lock.newCondition();
@@ -30,7 +34,13 @@ public class Reloj implements Runnable {
 				{
 					dormir.signalAll();
 				}else {
+					
 					cierreParque.signalAll();
+					camioneta.avisarCierreParque();
+					while(!listaGomones.isEmpty())
+					{
+						listaGomones.poll().avisarCierreParque();
+					}
 				}
 				
 				
@@ -82,6 +92,16 @@ public class Reloj implements Runnable {
 		 * Cuidado que no toma en cuenta que a las 17 no pueden subirse mas a los juegos
 		 */
 		return (this.horaActual >= 9 && this.horaActual < 18);
+	}
+	
+	public void setCamioneta(Camioneta unaCamioneta)
+	{
+		this.camioneta = unaCamioneta;
+	}
+	
+
+	public void agregarGomon(Gomon unGomon) {
+		this.listaGomones.add(unGomon);	
 	}
 	
 }

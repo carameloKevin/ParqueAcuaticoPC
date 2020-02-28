@@ -106,7 +106,6 @@ public class Gomon extends Transporte {
 			}
 		}
 		cantPasajeros--;
-		listaEspera--;
 		System.out.println(pasajero.getNombreCompleto() + " - Me pude bajar re contento. Pasajeros restantes: " + cantPasajeros);
 		if(cantPasajeros <= 0)
 		{
@@ -132,6 +131,7 @@ public class Gomon extends Transporte {
 				e.printStackTrace();
 			}
 		}
+		listaEspera--;
 		cantPasajeros++;
 		System.out.println(pasajero.getNombreCompleto() + " - Se subio al transporte "+ this.nombreTransporte);
 		arrancar.signal();
@@ -178,6 +178,14 @@ public class Gomon extends Transporte {
 
 	public boolean hayEspera() {
 		return listaEspera > 0;
+	}
+
+	public void avisarCierreParque() {
+		//Este metodo esta parque que cuando cierran el parque no se quede el gomon esperando la nada
+		lock.lock();
+		arrancar.signal();
+		lock.unlock();
+		
 	}
 	
 }

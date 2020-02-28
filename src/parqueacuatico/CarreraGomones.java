@@ -47,6 +47,7 @@ class CarreraGomones {
 		(new Thread(choferTrencito)).start();
 
 		camioneta = new Camioneta("CAMIONETA 01", CANT_ESPACIO_CAMIONETA, elReloj);
+		this.elReloj.setCamioneta(camioneta);
 		(new Thread(new ChoferCamioneta(camioneta))).start();
 
 		camionetaBicis = new CamionetaBicis("CamionetaBicis 01", this);
@@ -103,10 +104,9 @@ class CarreraGomones {
 				if (!yaHabiaAlguienDuo) {
 					// estaParaSalirDuo[ultPosDuo] = true;
 					ultPosDuo = (ultPosDuo + 1) % cantGomonesDuo;
-				} else {
-
+					this.elReloj.agregarGomon(gomonesDuo[ultPosDuo]);
 				}
-
+				
 				elGomon = gomonesDuo[ultPosDuo];
 			}
 

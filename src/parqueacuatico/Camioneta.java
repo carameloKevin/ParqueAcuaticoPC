@@ -115,4 +115,10 @@ public class Camioneta{
 		estaOrigen = false;
 	}
 	
+	public synchronized void avisarCierreParque()
+	{
+		//Este metodo para lo unico que esta es que para que a las 18 se entere que ya cerraron y se vaya
+		notifyAll();
+	}
+	
 }
